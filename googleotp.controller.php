@@ -20,5 +20,11 @@ class googleotpController extends googleotp
 		$cond->use = Context::get("use") === "Y" ? "Y" : "N";
 		$output = executeQuery('googleotp.updateGoogleotpuserconfigbySrl', $cond);
 		if(!$output->toBool()) return new Object(-1,"ERROR");
+
+		// alert a message
+		if(Context::get('xeVirtualRequestMethod') !== 'xml')
+		{
+			$this->setMessage("설정을 저장했습니다.");
+		}
 	}
 }
