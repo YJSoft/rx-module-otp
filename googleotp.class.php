@@ -1,7 +1,9 @@
 <?php
 class googleotp extends ModuleObject
 {
-	private $triggers = array();
+	private $triggers = array(
+		array("moduleHandler.init","googleotp","triggerHijackLogin","before")
+	);
 
 	function moduleInstall()
 	{

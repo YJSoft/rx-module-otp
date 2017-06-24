@@ -21,4 +21,9 @@ class googleotpView extends googleotp
 		$userconfig->qrcode = $oGoogleOTPModel->generateQRCode(Context::get('logged_info')->user_id, $userconfig->otp_id); //user_id
 		Context::set("user_config",$userconfig);
 	}
+
+	function dispGoogleotpInputotp()
+	{
+		return new Object(-1,getFullUrl());
+	}
 }

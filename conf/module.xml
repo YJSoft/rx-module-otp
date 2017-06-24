@@ -6,6 +6,8 @@
         <action name="dispGoogleotpAdminConfig" type="view" admin_index="true" menu_name="menu_googleotp" menu_index="true" />
         <action name="dispGoogleotpUserConfig" type="view" />
         <action name="procGoogleotpUserConfig" type="controller" />
+        <action name="dispGoogleotpInputotp" type="view" />
+        <action name="procGoogleotpInputotp" type="controller" />
     </actions>
     <menus>
         <menu name="menu_googleotp" type="all">
