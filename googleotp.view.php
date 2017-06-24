@@ -24,6 +24,7 @@ class googleotpView extends googleotp
 
 	function dispGoogleotpInputotp()
 	{
-		return new Object(-1,getFullUrl());
+		$domain = parse_url(getFullUrl());
+		return new Object(-1,$domain['host']);
 	}
 }
