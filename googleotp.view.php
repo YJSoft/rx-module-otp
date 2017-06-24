@@ -10,7 +10,7 @@ class googleotpView extends googleotp
 
 	function dispGoogleotpUserConfig()
 	{
-		if(!Context::get('logged_info') || Context::get('logged_info')->member_srl == 0) return new Object(-1,"로그인해주세요");
+		if(!Context::get("is_logged")) return new Object(-1,"로그인해주세요");
 
 		$oGoogleOTPModel = getModel('googleotp');
 
