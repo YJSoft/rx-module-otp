@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="0.2">
+	<title xml:lang="ko">XE GoogleOTP Module</title>
+	<description xml:lang="ko">Add google's otp to XpressEngine</description>
+	<version>0.1</version>
+	<date>2017-06-24</date>
+	<author email_address="yjsoft@yjsoft.pe.kr" link="https://yjsoft.pe.kr">
+		<name xml:lang="ko">YJSoft</name>
+	</author>
+</module>

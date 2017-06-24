@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module>
+	<grants />
+	<permissions />
+	<actions>
+        <action name="dispGoogleotpAdminConfig" type="view" admin_index="true" menu_name="menu_googleotp" menu_index="true" />
+        <action name="dispGoogleotpAdminTabEx" type="view" />
+        <action name="procGoogleotpAdminInsertConfig" type="controller" />
+    </actions>
+    <menus>
+        <menu name="menu_googleotp" type="all">
+            <title xml:lang="ko">XE GoogleOTP Module</title>
+            <title xml:lang="en">XE GoogleOTP Module</title>
+        </menu>
+    </menus>
+</module>

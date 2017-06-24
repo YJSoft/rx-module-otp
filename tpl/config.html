@@ -1,0 +1,81 @@
+<include target="header.html" />
+
+
+<form action="./" method="post" class="x_form-horizontal" id="fo_googleotp">
+	<input type="hidden" name="module" value="googleotp" />
+	<input type="hidden" name="act" value="procGoogleotpAdminInsertConfig" />
+
+	<section class="section">
+		<h1>설정 블록 타이틀</h1>
+		<div class="x_control-group">
+			<div class="x_control-group">
+				<label class="x_control-label" for="checkbox_1">체크박스</label>
+				<div class="x_controls">
+					<input type="checkbox" id="checkbox_1" name="checkbox_1" value="Y" checked="checked"|cond="!!$config->checkbox_1" />
+					<p class="x_help-block">체크가 되어 있으면 Y, 체크가 안되어 있으면 값이 전달되지 않는 체크박스.</p>
+				</div>
+			</div>
+			<label class="x_control-label" for="text_1">한줄 입력</label>
+			<div class="x_controls">
+				<input type="text" id="text_1" name="text_1" value="{$config->text_1}" />
+				<p class="x_help-block">한줄을 입력받습니다.</p>
+			</div>
+		</div>
+		<div class="x_control-group">
+			<label class="x_control-label" for="password_1">비밀번호 1</label>
+			<div class="x_controls">
+				<input type="password" id="password_1" name="password_1" value="{$config->password_1}" />
+				<p class="x_help-block">안전을 위해 두번 받는것이 좋습니다.</p>
+			</div>
+		</div>
+		<div class="x_control-group">
+			<label class="x_control-label" for="password_2">비밀번호 2</label>
+			<div class="x_controls">
+				<input type="password" id="password_2" name="password_2" value="{$config->password_2}" />
+				<p class="x_help-block">안전을 위해 두번 받는것이 좋습니다.</p>
+			</div>
+		</div>
+		<div class="x_control-group">
+			<label class="x_control-label" for="textarea_1">여러 줄 입력</label>
+			<div class="x_controls">
+				<textarea id="textarea_1" name="textarea_1">{$config->textarea_1}</textarea>
+				<p class="x_help-block">여러 줄 입력받을수 있습니다.</p>
+			</div>
+		</div>
+		<div class="x_control-group">
+			<label class="x_control-label" for="select_1">콤보 단일 선택</label>
+			<div class="x_controls">
+				<select id="select_1" name="select_1">
+					<option	value="1" selected="selected"|cond="$config->select_1 == '1'">단일 선택 1</option>
+					<option	value="2" selected="selected"|cond="$config->select_1 == '2'">단일 선택 2</option>
+					<option	value="3" selected="selected"|cond="$config->select_1 == '3'">단일 선택 3</option>
+				</select>
+				<p class="x_help-block">셀렉트박스 단일 선택입니다.</p>
+			</div>
+		</div>
+		<div class="x_control-group">
+			<label class="x_control-label">라디오 단일 선택</label>
+			<div class="x_controls">
+				<input type="radio" name="radio_1" value="1" checked="checked"|cond="$config->radio_1 == '1'" />단일 선택 1
+				<input type="radio" name="radio_1" value="2" checked="checked"|cond="$config->radio_1 == '2'" />단일 선택 2
+				<input type="radio" name="radio_1" value="3" checked="checked"|cond="$config->radio_1 == '3'" />단일 선택 3
+				<p class="x_help-block">라디오 단일 선택입니다.</p>
+			</div>
+		</div>
+		<div class="x_control-group">
+			<label class="x_control-label">체크박스 다중</label>
+			<div class="x_controls">
+				<input type="checkbox" name="check_1[]" value="1" checked="checked"|cond="in_array('1',$config->check_1)" />다중 선택 1
+				<input type="checkbox" name="check_1[]" value="2" checked="checked"|cond="in_array('2',$config->check_1)" />다중 선택 2
+				<input type="checkbox" name="check_1[]" value="3" checked="checked"|cond="in_array('3',$config->check_1)" />다중 선택 3
+				<p class="x_help-block">체크박스 다중 선택입니다.</p>
+			</div>
+		</div>
+	</section>
+
+	<div class="x_clearfix btnArea">
+		<div class="x_pull-right">
+			<button class="x_btn x_btn-primary" type="submit">{$lang->cmd_registration}</button>
+		</div>
+	</div>
+</form>
