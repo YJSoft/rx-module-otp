@@ -2,7 +2,8 @@
 class googleotp extends ModuleObject
 {
 	private $triggers = array(
-		array("moduleHandler.init","googleotp","controller","triggerHijackLogin","before")
+		array("moduleHandler.init","googleotp","controller","triggerHijackLogin","before"),
+		array('moduleHandler.init', 'googleotp', 'controller', 'triggerAddMemberMenu', 'after')
 	);
 
 	function moduleInstall()

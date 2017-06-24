@@ -34,6 +34,41 @@ class googleotpController extends googleotp
 		}
 	}
 
+	function procGoogleotpInputotp()
+	{
+		if(!Context::get("is_logged")) return new Object(-1,"로그인하지 않았습니다.");
+		if($_SESSION['googleotp_passed']) return new Object(-1,"이미 인증했습니다.");
+
+		$oGoogleOTPModel = getModel('googleotp');
+		if($oGoogleOTPModel->checkOTPNumber(Context::get('logged_info')->member_srl,Context::get("otppinput")))
+		{
+			$_SESSION['googleotp_passed'] = TRUE;
+			$this->setRedirectUrl($_SESSION['beforeaddress']);
+		}
+		else
+		{
+			$this->setMessage("잘못된 OTP 번호입니다");
+			$this->setRedirectUrl(getNotEncodedUrl('', 'act', 'dispGoogleotpInputotp'));
+		}
+	}
+
+	function triggerAddMemberMenu()
+	{
+		$logged_info = Context::get('logged_info');
+		if(!Context::get('is_logged')) return new Object();
+
+		$oMemberController = getController('member');
+		$oMemberController->addMemberMenu('dispGoogleotpUserConfig', "OTP 설정");
+		if($logged_info->is_admin== 'Y')
+		{
+			$target_srl = Context::get('target_srl');
+
+			$url = getUrl('','act','dispGoogleotpUserConfig','member_srl',$target_srl);
+			$oMemberController->addMemberPopupMenu($url, '유저 OTP 설정', '');
+		}
+		return new Object();
+	}
+
 	function triggerHijackLogin(&$obj) {
 		if(!Context::get("is_logged") || $obj->act === "dispMemberLogout") {
 			unset($_SESSION['googleotp_passed']);
@@ -46,6 +81,7 @@ class googleotpController extends googleotp
 			$allowedact = array("dispGoogleotpInputotp","procGoogleotpInputotp","procMemberLogin","dispMemberLogout");
 			if(!in_array($obj->act,$allowedact) && !$_SESSION['googleotp_passed'])
 			{
+				$_SESSION['beforeaddress'] = getNotEncodedUrl();
 				header("Location: " . getNotEncodedUrl('act','dispGoogleotpInputotp'));
 				Context::close();
 				die();

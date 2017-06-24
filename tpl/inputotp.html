@@ -1,18 +1,17 @@
 <load target="../../../member/skins/default/css/member.css" />
 <div class="xm">
 
-    <div cond="$XE_VALIDATOR_MESSAGE && $XE_VALIDATOR_ID == 'modules/googleotp/tpl/otp/otpconfig/1'" class="message {$XE_VALIDATOR_MESSAGE_TYPE}">
+    <div cond="$XE_VALIDATOR_MESSAGE && $XE_VALIDATOR_ID == 'modules/googleotp/tpl/inputotp/otplogin/1'" class="message {$XE_VALIDATOR_MESSAGE_TYPE}">
         <p>{$XE_VALIDATOR_MESSAGE}</p>
     </div>
 
-
-    <form action="./" method="post" class="form-horizontal" id="fo_otpconfig">
+    <form action="./" method="post" class="form-horizontal" id="fo_otplogin">
         <input type="hidden" name="module" value="googleotp" />
         <input type="hidden" name="act" value="procGoogleotpUserConfig" />
-        <input type="hidden" name="xe_validator_id" value="modules/googleotp/tpl/otp/otpconfig/1" />
+        <input type="hidden" name="xe_validator_id" value="modules/googleotp/tpl/inputotp/otplogin/1" />
         <input type="hidden" name="member_srl" value="{$member_srl}">
         <section class="section">
-            <h1>Google OTP Setup</h1>
+            <h1>Google OTP 인증</h1>
             <div class="control-group">
                 <label class="control-label">OTP 입력</label>
                 <div class="controls">

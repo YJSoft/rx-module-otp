@@ -7,7 +7,8 @@ class googleotpModel extends googleotp
 	{
 	}
 
-	function insertNewConfig($member_srl) {
+	function insertNewConfig($member_srl)
+	{
 		if($this->checkUserConfig($member_srl)) return FALSE;
 
 		$ga = new PHPGangsta_GoogleAuthenticator();
@@ -19,7 +20,8 @@ class googleotpModel extends googleotp
 		return $output->toBool();
 	}
 
-	function checkUserConfig($member_srl) {
+	function checkUserConfig($member_srl)
+	{
 		$cond = new stdClass();
 		$cond->srl=$member_srl;
 		$output = executeQuery('googleotp.getGoogleotpuserconfigbySrl', $cond);
@@ -27,12 +29,14 @@ class googleotpModel extends googleotp
 		else return TRUE;
 	}
 
-	function generateQRCode($member_srl,$key) {
+	function generateQRCode($member_srl,$key)
+	{
 		$ga = new PHPGangsta_GoogleAuthenticator();
 		return $ga->getQRCodeGoogleUrl($member_srl, $key);
 	}
 
-	function generateNewOTP($member_srl) {
+	function generateNewOTP($member_srl)
+	{
 		if(!$this->checkUserConfig($member_srl)) {
 			return FALSE;
 		} else {
@@ -44,6 +48,13 @@ class googleotpModel extends googleotp
 			$output = executeQuery('googleotp.updateGoogleotpkeybySrl', $cond);
 			return $output->toBool();
 		}
+	}
+
+	function checkOTPNumber($member_srl,$number)
+	{
+		$config = $this->getUserConfig($member_srl);
+		$ga = new PHPGangsta_GoogleAuthenticator();
+		return $ga->verifyCode($config->otp_id, $number, 2);
 	}
 
 	function getUserConfig($member_srl)
