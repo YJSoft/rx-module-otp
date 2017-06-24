@@ -27,6 +27,11 @@ class googleotpModel extends googleotp
 		else return TRUE;
 	}
 
+	function generateQRCode($member_srl,$key) {
+		$ga = new PHPGangsta_GoogleAuthenticator();
+		return $ga->getQRCodeGoogleUrl($member_srl, key);
+	}
+
 	function generateNewOTP($member_srl) {
 		if(!$this->checkUserConfig($member_srl)) {
 			return FALSE;
