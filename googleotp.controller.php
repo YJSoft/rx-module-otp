@@ -25,7 +25,7 @@ class googleotpController extends googleotp
 		if(Context::get('xeVirtualRequestMethod') !== 'xml')
 		{
 			$this->setMessage('success_updated');
-			$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'admin', 'act', 'dispGoogleotpUserConfig'));
+			$this->setRedirectUrl(getNotEncodedUrl('', 'act', 'dispGoogleotpUserConfig'));
 		}
 	}
 }
