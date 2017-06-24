@@ -7,7 +7,7 @@
 
     <form action="./" method="post" class="form-horizontal" id="fo_otplogin">
         <input type="hidden" name="module" value="googleotp" />
-        <input type="hidden" name="act" value="procGoogleotpUserConfig" />
+        <input type="hidden" name="act" value="procGoogleotpInputotp" />
         <input type="hidden" name="xe_validator_id" value="modules/googleotp/tpl/inputotp/otplogin/1" />
         <input type="hidden" name="member_srl" value="{$member_srl}">
         <section class="section">
@@ -15,7 +15,7 @@
             <div class="control-group">
                 <label class="control-label">OTP 입력</label>
                 <div class="controls">
-                    <input type="text" name="otppinput" />
+                    <input type="text" name="otpinput" />
                     <p class="help-block">Google OTP 앱에 뜬 번호를 입력해주세요.</p>
                 </div>
             </div>

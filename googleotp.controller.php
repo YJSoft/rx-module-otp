@@ -40,7 +40,7 @@ class googleotpController extends googleotp
 		if($_SESSION['googleotp_passed']) return new Object(-1,"이미 인증했습니다.");
 
 		$oGoogleOTPModel = getModel('googleotp');
-		if($oGoogleOTPModel->checkOTPNumber(Context::get('logged_info')->member_srl,Context::get("otppinput")))
+		if($oGoogleOTPModel->checkOTPNumber(Context::get('logged_info')->member_srl,Context::get("otpinput")))
 		{
 			$_SESSION['googleotp_passed'] = TRUE;
 			$this->setRedirectUrl($_SESSION['beforeaddress']);
