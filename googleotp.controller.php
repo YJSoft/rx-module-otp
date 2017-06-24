@@ -24,7 +24,8 @@ class googleotpController extends googleotp
 		// alert a message
 		if(Context::get('xeVirtualRequestMethod') !== 'xml')
 		{
-			$this->setMessage("설정을 저장했습니다.");
+			$this->setMessage('success_updated');
+			$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'admin', 'act', 'dispGoogleotpUserConfig'));
 		}
 	}
 }
