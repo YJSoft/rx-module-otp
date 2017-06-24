@@ -9,13 +9,6 @@ class googleotpAdminView extends googleotp
 
 	function dispGoogleotpAdminConfig()
 	{
-		$oGoogleotpModel = getModel('googleotp');
-		$module_config = $oGoogleotpModel->getConfig();
-		Context::set('config', $module_config);
-	}
-
-	function dispGoogleotpAdminTabEx()
-	{
-		//tab
+		//Config
 	}
 }

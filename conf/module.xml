@@ -4,8 +4,8 @@
 	<permissions />
 	<actions>
         <action name="dispGoogleotpAdminConfig" type="view" admin_index="true" menu_name="menu_googleotp" menu_index="true" />
-        <action name="dispGoogleotpAdminTabEx" type="view" />
-        <action name="procGoogleotpAdminInsertConfig" type="controller" />
+        <action name="dispGoogleotpUserConfig" type="view" />
+        <action name="procGoogleotpUserConfig" type="controller" />
     </actions>
     <menus>
         <menu name="menu_googleotp" type="all">

@@ -1,0 +1,10 @@
+<query id="insertGoogleotpuserconfig" action="insert">
+    <tables>
+        <table name="googleotp_memberconfig" />
+    </tables>
+    <columns>
+        <column name="srl" var="srl" notnull="notnull" />
+        <column name="otp_id" var="otp_id" notnull="notnull" />
+        <column name="use" var="use" notnull="notnull" />
+    </columns>
+</query>

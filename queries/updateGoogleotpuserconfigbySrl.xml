@@ -1,0 +1,11 @@
+<query id="updateGoogleotpuserconfigbySrl" action="update">
+    <tables>
+        <table name="googleotp_memberconfig" />
+    </tables>
+    <columns>
+        <column name="use" var="use" notnull="notnull" />
+    </columns>
+    <conditions>
+        <condition operation="equal" column="srl" var="srl" filter="number" notnull="notnull" />
+    </conditions>
+</query>
