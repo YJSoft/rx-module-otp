@@ -18,7 +18,7 @@ class googleotpView extends googleotp
 			$oGoogleOTPModel->insertNewConfig(Context::get('logged_info')->member_srl);
 		}
 		$userconfig = $oGoogleOTPModel->getUserConfig(Context::get('logged_info')->member_srl);
-		$userconfig->qrcode = $oGoogleOTPModel->generateQRCode(Context::get('logged_info')->user_id, $userconfig->key); //user_id
+		$userconfig->qrcode = $oGoogleOTPModel->generateQRCode(Context::get('logged_info')->user_id, $userconfig->otp_id); //user_id
 		Context::set("user_config",$userconfig);
 	}
 }
