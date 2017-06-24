@@ -21,6 +21,11 @@ class googleotpController extends googleotp
 		$output = executeQuery('googleotp.updateGoogleotpuserconfigbySrl', $cond);
 		if(!$output->toBool()) return new Object(-1,"ERROR");
 
+		if($cond->use === "Y")
+		{
+			$_SESSION['googleotp_passed'] = TRUE;
+		}
+
 		// alert a message
 		if(Context::get('xeVirtualRequestMethod') !== 'xml')
 		{
