@@ -1,0 +1,14 @@
+<query id="getGoogleotpauthlogbySrl" action="select">
+    <tables>
+        <table name="googleotp_authlog" />
+    </tables>
+    <columns>
+        <column name="*" />
+    </columns>
+    <conditions>
+        <condition operation="equal" column="srl" var="srl" notnull="notnull" />
+        <condition operation="equal" column="number" var="number" notnull="notnull" pipe="and" />
+        <condition operation="equal" column="issuccess" var="issuccess" notnull="notnull" pipe="and" />
+        <condition operation="more" column="time" var="time" notnull="notnull" pipe="and" />
+    </conditions>
+</query>

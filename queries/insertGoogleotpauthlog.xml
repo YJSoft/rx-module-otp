@@ -1,0 +1,11 @@
+<query id="insertGoogleotpauthlog" action="insert">
+    <tables>
+        <table name="googleotp_authlog" />
+    </tables>
+    <columns>
+        <column name="srl" var="srl" notnull="notnull" />
+        <column name="number" var="number" notnull="notnull" />
+        <column name="issuccess" var="issuccess" notnull="notnull" />
+        <column name="time" var="time" notnull="notnull" />
+    </columns>
+</query>

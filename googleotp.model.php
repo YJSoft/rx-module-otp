@@ -19,14 +19,40 @@ class googleotpModel extends googleotp
 		$output = executeQuery('googleotp.insertGoogleotpuserconfig', $cond);
 		return $output->toBool();
 	}
+	
+	function insertAuthlog($member_srl,$number,$issuccess) {
+	    if(!$this->checkUserConfig($member_srl)) return FALSE;
+
+		$cond = new stdClass();
+		$cond->srl = $member_srl;
+		$cond->number = $number;
+		$cond->issuccess = $issuccess;
+		$cond->time = time();
+		$output = executeQuery('googleotp.insertGoogleotpauthlog', $cond);
+		return $output;
+	}
 
 	function checkUserConfig($member_srl)
 	{
+	    
 		$cond = new stdClass();
-		$cond->srl=$member_srl;
+		$cond->srl = $member_srl;
 		$output = executeQuery('googleotp.getGoogleotpuserconfigbySrl', $cond);
 		if(!isset($output->data->otp_id)) return FALSE;
 		else return TRUE;
+	}
+	
+	function checkUsedNumber($member_srl,$number) {
+	    // 5분전 입력한 인증코드 이후만 조회함
+	    $cond = new stdClass();
+		$cond->srl = $member_srl;
+		$cond->number = $number;
+		$cond->issuccess = "Y";
+		$cond->time = time() - 300;
+		
+		$output = executeQueryArray('googleotp.getGoogleotpauthlogbySrl', $cond);
+		if(!isset($output->data[0])) return TRUE;
+		else return FALSE;
 	}
 
 	function generateQRCode($member_srl,$key)
