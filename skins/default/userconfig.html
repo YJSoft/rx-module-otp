@@ -1,11 +1,9 @@
-<load target="../../../../member/skins/default/css/member.css" />
+<load target="../../../member/skins/default/css/member.css" />
+<include target="../../../member/skins/default/common_header.html" />
 <div class="xm">
-
     <div cond="$XE_VALIDATOR_MESSAGE && $XE_VALIDATOR_ID == 'modules/googleotp/tpl/otp/otpconfig/1'" class="message {$XE_VALIDATOR_MESSAGE_TYPE}">
         <p>{$XE_VALIDATOR_MESSAGE}</p>
     </div>
-
-
     <form action="./" method="post" class="form-horizontal" id="fo_otpconfig">
         <input type="hidden" name="module" value="googleotp" />
         <input type="hidden" name="act" value="procGoogleotpUserConfig" />
@@ -40,4 +38,4 @@
         </div>
     </form>
 </div>
-<include target="../../../../member/skins/default/common_footer.html" />
+<include target="../../../member/skins/default/common_footer.html" />

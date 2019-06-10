@@ -1,6 +1,12 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <lang>
-	<item name="googleotp">
-		<value xml:lang="ko"><![CDATA[XE GoogleOTP Module]]></value>
+	<item name="cmd_googleotp">
+		<value xml:lang="ko"><![CDATA[googleotp]]></value>
+	</item>
+	<item name="cmd_googleotp_general_config">
+		<value xml:lang="ko"><![CDATA[기본 설정]]></value>
+	</item>
+	<item name="cmd_googleotp_example_config">
+		<value xml:lang="ko"><![CDATA[예제 설정]]></value>
 	</item>
 </lang>
