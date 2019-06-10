@@ -1,0 +1,71 @@
+<include target="header.html" />
+
+<section class="section">
+	<h1>인증맴버 리스트</h1>
+
+	<p class="x_well x_well-small" cond="!$otp_list">기록된 보스 리스트가 없습니다.</p>
+
+	<table class="x_table x_table-striped x_table-hover" style="margin-top:20px;">
+		<thead>
+		<tr>
+			<th scope="col">번호</th>
+			<th scope="col">닉네임</th>
+			<th scope="col">otp 사용여부</th>
+			<th scope="col">수정</th>
+		</tr>
+		</thead>
+		<tbody>
+			<!--@foreach($otp_list as $no => $val)-->
+			<tr>
+				<td>{$no}</td>
+				<td>{$val->member_info->nick_name}</td>
+				<td><!--@if($val->use == 'Y')--> 사용 <!--@else--> 사용 안 함<!--@end--></td>
+				<td><a href="{getUrl('', 'module', 'admin', 'act', 'dispGoogleotpAdminMemberSetup', 'srl', $val->srl)}">수정</a></td>
+			</tr>
+			<!--@end-->
+		</tbody>
+	</table>
+
+	<form action="" class="x_pagination">
+		<input type="hidden" name="error_return_url" value="" />
+		<input type="hidden" name="module" value="{$module}" />
+		<input type="hidden" name="act" value="{$act}" />
+		<input cond="$search_keyword" type="hidden" name="search_keyword" value="{$search_keyword}" />
+		<input cond="$search_target" type="hidden" name="search_target" value="{$search_target}" />
+
+		<ul>
+			<li class="x_disabled"|cond="!$page || $page == 1"><a href="{getUrl('page', '')}">&laquo; {$lang->first_page}</a></li>
+			<block cond="$page_navigation->first_page != 1 && $page_navigation->first_page + $page_navigation->page_count > $page_navigation->last_page - 1 && $page_navigation->page_count != $page_navigation->total_page">
+				{@$isGoTo = true}
+				<li>
+					<a href="#goTo" data-toggle title="{$lang->cmd_go_to_page}">&hellip;</a>
+					<span cond="$isGoTo" id="goTo" class="x_input-append">
+				<input type="number" min="1" max="{$page_navigation->last_page}" required name="page" title="{$lang->cmd_go_to_page}" />
+				<button type="submit" class="x_add-on">Go</button>
+			</span>
+				</li>
+			</block>
+
+			<!--@while($page_no = $page_navigation->getNextPage())-->
+			{@$last_page = $page_no}
+			<li class="x_active"|cond="$page_no == $page"><a  href="{getUrl('page', $page_no)}">{$page_no}</a></li>
+			<!--@end-->
+
+			<block cond="$last_page != $page_navigation->last_page && $last_page + 1 != $page_navigation->last_page">
+				{@$isGoTo = true}
+				<li>
+					<a href="#goTo" data-toggle title="{$lang->cmd_go_to_page}">&hellip;</a>
+					<span cond="$isGoTo" id="goTo" class="x_input-append">
+				<input type="number" min="1" max="{$page_navigation->last_page}" required name="page" title="{$lang->cmd_go_to_page}" />
+				<button type="submit" class="x_add-on">Go</button>
+			</span>
+				</li>
+			</block>
+			<li class="x_disabled"|cond="$page == $page_navigation->last_page"><a href="{getUrl('page', $page_navigation->last_page)}" title="{$page_navigation->last_page}">{$lang->last_page} &raquo;</a></li>
+		</ul>
+	</form>
+
+	<span class="x_pull-right x_btn-group">
+		<a class="x_btn x_btn-inverse" href="{getUrl('', 'module', 'admin', 'act', 'dispRaidtimeAdminInsertBoss')}">보스기록</a>
+	</span>
+</section>

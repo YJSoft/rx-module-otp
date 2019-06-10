@@ -22,4 +22,34 @@ class googleotpAdminView extends googleotp
 		// 스킨 파일 지정
 		$this->setTemplateFile('config');
 	}
+	
+	public function dispGoogleotpAdminMemberList()
+	{
+		$oMemberModel = getModel('member');
+		
+		$args = new stdClass;
+		$args->page = Context::get('page'); ///< 페이지
+		$args->list_count = 20; ///< 한페이지에 보여줄 기록 수
+		$args->page_count = 10; ///< 페이지 네비게이션에 나타날 페이지의 수
+		$args->order_type = 'desc';
+		$output = executeQueryArray('googleotp.getGoogleotpMemberList', $args);
+
+		foreach ($output->data as $key => $datum)
+		{
+			$output->data[$key]->member_info = $oMemberModel->getMemberInfoByMemberSrl($datum->srl);
+		}
+
+		Context::set('total_count', $output->total_count);
+		Context::set('total_page', $output->total_page);
+		Context::set('page', $output->page);
+		Context::set('page_navigation', $output->page_navigation);
+		Context::set('otp_list', $output->data);
+	}
+	
+	public function dispGoogleotpAdminMemberSetup()
+	{
+		$userOtpConfig = getModel('googleotp')->getUserConfig(Context::get('srl'));
+		
+		Context::set('user_config', $userOtpConfig);
+	}
 }

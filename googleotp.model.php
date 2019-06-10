@@ -34,7 +34,6 @@ class googleotpModel extends googleotp
 
 	function checkUserConfig($member_srl)
 	{
-	    
 		$cond = new stdClass();
 		$cond->srl = $member_srl;
 		$output = executeQuery('googleotp.getGoogleotpuserconfigbySrl', $cond);
