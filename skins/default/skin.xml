@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<skin version="0.2">
+	<title xml:lang="ko">기본 구글 OTP 스킨</title>
+	<description xml:lang="ko">
+		구글 OTP 로그인 기본 스킨입니다.
+	</description>
+	<version>0.1</version>
+	<date>2019-06-10</date>
+
+	<author email_address="support@bjrambo.com" link="https://bjrambo.com/">
+		<name xml:lang="ko">람보</name>
+	</author>
+</skin>
