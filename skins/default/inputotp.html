@@ -1,4 +1,4 @@
-<load target="../../../member/skins/default/css/member.css" />
+<load target="../../../../member/skins/default/css/member.css" />
 <div class="xm">
 
     <div cond="$XE_VALIDATOR_MESSAGE && $XE_VALIDATOR_ID == 'modules/googleotp/tpl/inputotp/otplogin/1'" class="message {$XE_VALIDATOR_MESSAGE_TYPE}">
@@ -15,16 +15,16 @@
             <div class="control-group">
                 <label class="control-label">OTP 입력</label>
                 <div class="controls">
-                    <input type="text" name="otpinput" />
+                    <input type="password" name="otpinput" />
                     <p class="help-block">Google OTP 앱에 뜬 번호를 입력해주세요.</p>
                 </div>
             </div>
         </section>
         <div class="clearfix btnArea">
             <div class="pull-right">
-                <button class="btn btn-primary" type="submit">설정 저장</button>
+                <button class="btn btn-primary" type="submit">로그인</button>
             </div>
         </div>
     </form>
 </div>
-<include target="../../../member/skins/default/common_footer.html" />
+<include target="../../../../member/skins/default/common_footer.html" />
