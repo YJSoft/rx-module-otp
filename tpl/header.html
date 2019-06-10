@@ -1,13 +1,10 @@
+<load target="css/config.css" />
+<load target="js/config.js" />
+
 <div class="x_page-header">
-	<h1>{$lang->googleotp}</h1>
+	<h1>{$lang->cmd_googleotp}</h1>
 </div>
 
 <ul class="x_nav x_nav-tabs">
-	<li class="x_active"|cond="$act == 'dispGoogleotpAdminConfig'">
-		<a href="{getUrl('', 'module', 'admin', 'act', 'dispGoogleotpAdminConfig')}">Config</a>
-	</li>
+	<li class="x_active"|cond="$act == 'dispGoogleotpAdminConfig'"><a href="{getUrl('', 'module', 'admin', 'act', 'dispGoogleotpAdminConfig')}">{$lang->cmd_googleotp_general_config}</a></li>
 </ul>
-
-<div cond="$XE_VALIDATOR_MESSAGE" class="message {$XE_VALIDATOR_MESSAGE_TYPE}">
-	<p>{$XE_VALIDATOR_MESSAGE}</p>
-</div>

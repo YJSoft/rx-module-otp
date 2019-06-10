@@ -1,2 +1,35 @@
 <include target="header.html" />
-관리 기능 구현중
+
+
+
+<form class="x_form-horizontal" action="./" method="post" id="googleotp">
+	<input type="hidden" name="module" value="googleotp" />
+	<input type="hidden" name="act" value="procGoogleotpAdminInsertConfig" />
+	<input type="hidden" name="success_return_url" value="{getRequestUriByServerEnviroment()}" />
+	<input type="hidden" name="xe_validator_id" value="modules/googleotp/tpl/config/1" />
+
+	<div class="message {$XE_VALIDATOR_MESSAGE_TYPE}" cond="$XE_VALIDATOR_MESSAGE && $XE_VALIDATOR_ID == 'modules/googleotp/tpl/config/1'">
+		<p>{$XE_VALIDATOR_MESSAGE}</p>
+	</div>
+
+	<section class="section">
+		<h1>스킨설정</h1>
+		<div class="x_control-group">
+			<label class="x_control-label" for="skin">{$lang->skin}</label>
+			<div class="x_controls">
+				<select name="skin" id="skin" onchange="doDisplaySkinColorset(this); return false;">
+					<option loop="$skin_list => $key, $val" value="{$key}" selected="selected"|cond="$config->skin == $key">
+						{$val->title} ({escape($key)})
+					</option>
+				</select>
+			</div>
+		</div>
+	</section>
+
+	<div class="btnArea x_clearfix">
+		<button type="submit" class="x_btn x_btn-primary x_pull-right">{$lang->cmd_registration}</button>
+	</div>
+</form>
+
+
+
