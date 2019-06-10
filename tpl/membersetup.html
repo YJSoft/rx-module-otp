@@ -1,0 +1,27 @@
+<include target="header.html" />
+
+<form class="x_form-horizontal" action="./" method="POST" id="googleotp">
+	<input type="hidden" name="module" value="googleotp" />
+	<input type="hidden" name="act" value="procGoogleotpAdminUpdateConfig" />
+	<input type="hidden" name="success_return_url" value="{getRequestUriByServerEnviroment()}" />
+	<input type="hidden" name="srl" value="{$srl}" /> 
+	<section class="section">
+		<h1>회원 OTP 설정</h1>
+		<div class="x_control-group">
+			<label class="x_control-label" for="use">OTP설정</label>
+			<div class="x_controls">
+				<select name="use" id="use">
+					<option value="Y" selected="selected"|cond="$user_config->use == 'Y'">
+						사용함
+					</option>
+					<option value="N" selected="selected"|cond="$user_config->use == 'N'">
+						사용 안 함
+					</option>
+				</select>
+			</div>
+		</div>
+		<div class="btnArea x_clearfix">
+			<button type="submit" class="x_btn x_btn-primary x_pull-right">{$lang->cmd_registration}</button>
+		</div>
+	</section>
+</form>

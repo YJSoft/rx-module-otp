@@ -25,4 +25,19 @@ class googleotpAdminController extends googleotp
 		$this->setMessage('success_registed');
 		$this->setRedirectUrl(Context::get('success_return_url'));
 	}
+	
+	public function procGoogleotpAdminUpdateConfig()
+	{
+		$obj = Context::getRequestVars();
+		$args = new stdClass();
+		$args->srl = $obj->srl;
+		$args->use = $obj->use;
+		$output = executeQuery('googleotp.updateGoogleotpuserconfigbySrl', $args);
+		if(!$output->toBool())
+		{
+			return $output;
+		}
+		$this->setMessage('success_registed');
+		$this->setRedirectUrl(Context::get('success_return_url'));
+	}
 }
