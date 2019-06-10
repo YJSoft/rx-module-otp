@@ -7,7 +7,7 @@ class googleotpController extends googleotp
 
 	function procGoogleotpUserConfig()
 	{
-		if(!Context::get("is_logged")) return new Object(-1,"로그인해주세요");
+		if(!Context::get("is_logged")) return $this->createObject(-1,"로그인해주세요");
 
 		$oGoogleOTPModel = getModel('googleotp');
 
@@ -19,7 +19,7 @@ class googleotpController extends googleotp
 		$cond->srl=Context::get('logged_info')->member_srl;
 		$cond->use = Context::get("use") === "Y" ? "Y" : "N";
 		$output = executeQuery('googleotp.updateGoogleotpuserconfigbySrl', $cond);
-		if(!$output->toBool()) return new Object(-1,"ERROR");
+		if(!$output->toBool()) return $this->createObject(-1,"ERROR");
 
 		if($cond->use === "Y")
 		{
@@ -36,8 +36,8 @@ class googleotpController extends googleotp
 
 	function procGoogleotpInputotp()
 	{
-		if(!Context::get("is_logged")) return new Object(-1,"로그인하지 않았습니다.");
-		if($_SESSION['googleotp_passed']) return new Object(-1,"이미 인증했습니다.");
+		if(!Context::get("is_logged")) return $this->createObject(-1,"로그인하지 않았습니다.");
+		if($_SESSION['googleotp_passed']) return $this->createObject(-1,"이미 인증했습니다.");
 		
 		$otpnumber = Context::get("otpinput");
 		
@@ -54,7 +54,7 @@ class googleotpController extends googleotp
 		{
 		    if(!$oGoogleOTPModel->checkUsedNumber($member_srl,$otpnumber))
 		    {
-		        return new Object(-1,"이미 인증에 사용된 OTP 번호입니다. 다른 번호를 사용해주세요.");
+		        return $this->createObject(-1,"이미 인증에 사용된 OTP 번호입니다. 다른 번호를 사용해주세요.");
 		    }
 		    else
 		    {
@@ -74,7 +74,7 @@ class googleotpController extends googleotp
 	function triggerAddMemberMenu()
 	{
 		$logged_info = Context::get('logged_info');
-		if(!Context::get('is_logged')) return new Object();
+		if(!Context::get('is_logged')) return $this->createObject();
 
 		$oMemberController = getController('member');
 		$oMemberController->addMemberMenu('dispGoogleotpUserConfig', "OTP 설정");
@@ -85,7 +85,7 @@ class googleotpController extends googleotp
 			$url = getUrl('','act','dispGoogleotpUserConfig','member_srl',$target_srl);
 			$oMemberController->addMemberPopupMenu($url, '유저 OTP 설정', '');
 		}
-		return new Object();
+		return $this->createObject();
 	}
 
 	function triggerHijackLogin(&$obj) {

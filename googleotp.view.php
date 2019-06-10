@@ -10,7 +10,7 @@ class googleotpView extends googleotp
 
 	function dispGoogleotpUserConfig()
 	{
-		if(!Context::get("is_logged")) return new Object(-1,"로그인해주세요");
+		if(!Context::get("is_logged")) return $this->createObject(-1,"로그인해주세요");
 		if(Context::get('logged_info')->is_admin === "Y") {
 			$member_srl = Context::get('member_srl') ? Context::get('member_srl') : Context::get('logged_info')->member_srl;
 		} else {
