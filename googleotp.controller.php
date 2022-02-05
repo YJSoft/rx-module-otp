@@ -18,9 +18,14 @@ class googleotpController extends googleotp
 		$cond = new stdClass();
 		$cond->srl = Context::get('logged_info')->member_srl;
 		$cond->use = Context::get("use") === "Y" ? "Y" : "N";
-		$cond->issue_type = Context::get("issue_type");
+		$cond->issue_type = Context::get("issue_type") ?: 'none';
+
+		if($cond->use == 'Y' && !in_array($cond->issue_type, array('otp', 'email'))) {
+			return $this->createObject(-1, "2차 인증 방식을 선택해주세요.");
+		}
+
 		$output = executeQuery('googleotp.updateGoogleotpuserconfigbySrl', $cond);
-		if(!$output->toBool()) return $this->createObject(-1, "ERROR");
+		if(!$output->toBool()) return $this->createObject(-1, "ERROR #1 : 관리자에게 문의하세요.");
 
 		if($cond->use === "Y")
 		{
