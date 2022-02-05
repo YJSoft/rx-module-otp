@@ -86,7 +86,7 @@ class googleotpModel extends googleotp
 	{
 		//srl로 회원 조회
 		$cond = new stdClass();
-		$cond->srl=$member_srl;
+		$cond->srl = $member_srl;
 		$output = executeQuery('googleotp.getGoogleotpuserconfigbySrl', $cond);
 		if(!$output->toBool()) return FALSE;
 		else return $output->data;
