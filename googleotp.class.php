@@ -46,6 +46,8 @@ class googleotp extends ModuleObject
 		{
 			$oModuleModel = getModel('module');
 			self::$_config_cache = $oModuleModel->getModuleConfig($this->module) ?: new stdClass;
+
+			if(!isset(self::$_config_cache->allow_issue_type)) self::$_config_cache->allow_issue_type = ['otp'];
 		}
 		return self::$_config_cache;
 	}
