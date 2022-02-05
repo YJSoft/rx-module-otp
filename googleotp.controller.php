@@ -44,6 +44,24 @@ class googleotpController extends googleotp
 	{
 		if(!Context::get("is_logged")) return $this->createObject(-1,"로그인하지 않았습니다.");
 		if($_SESSION['googleotp_passed']) return $this->createObject(-1,"이미 인증했습니다.");
+
+		$config = $this->getConfig();
+		if ( $config->use_captcha === 'Y' )
+		{
+			$spamfilter_config = ModuleModel::getModuleConfig('spamfilter');
+			$logged_info = Context::get('logged_info');
+			if (
+				$config->use_captcha == 'Y' && defined(RX_BASEDIR) &&
+				isset($spamfilter_config) && isset($spamfilter_config->captcha)
+				&& $spamfilter_config->captcha->type === 'recaptcha'
+				&& $logged_info->is_admin !== 'Y'
+			)
+			{
+				include_once RX_BASEDIR . 'modules/spamfilter/spamfilter.lib.php';
+				spamfilter_reCAPTCHA::init($spamfilter_config->captcha);
+				spamfilter_reCAPTCHA::check();
+			}
+		}
 		
 		$otpnumber = Context::get("otpinput");
 		
