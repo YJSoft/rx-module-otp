@@ -27,6 +27,13 @@
 				<p class="x_help-block">허용할 인증수단을 선택해주세요.</p>
 			</div>
 		</div>
+		<div class="x_control-group">
+			<label class="x_control-label">인증 메일/SMS 재전송 가능 횟수</label>
+			<div class="x_controls">
+				<input type="number" name="auth_retry_hour" value="{$googleotp_config->auth_retry_hour}" /> 시간 이내 최대 <input type="number" name="auth_retry_limit" value="{$googleotp_config->auth_retry_limit}" /> 회 까지
+				<p class="x_help-block">허용할 인증수단을 선택해주세요.</p>
+			</div>
+		</div>
 	</section>
 
 	<section class="section">
