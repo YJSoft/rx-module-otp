@@ -20,7 +20,7 @@ class googleotpController extends googleotp
 		$cond->use = Context::get("use") === "Y" ? "Y" : "N";
 		$cond->issue_type = Context::get("issue_type") ?: 'none';
 
-		if($cond->use == 'Y' && !in_array($cond->issue_type, array('otp', 'email'))) {
+		if($cond->use == 'Y' && !in_array($cond->issue_type, array('otp', 'email', 'sms'))) {
 			return $this->createObject(-1, "2차 인증 방식을 선택해주세요.");
 		}
 
