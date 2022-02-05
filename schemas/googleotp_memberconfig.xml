@@ -3,4 +3,5 @@
     <column name="srl" type="number" notnull="notnull" />
     <column name="otp_id" type="varchar" size="16" notnull="notnull" index="idx_otp_id" />
     <column name="use" type="varchar" size="5" notnull="notnull" index="idx_use" />
+    <column name="issue_type" type="varchar" size="10" notnull="notnull" default="email" />
 </table>

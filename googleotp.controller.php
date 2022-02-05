@@ -7,7 +7,7 @@ class googleotpController extends googleotp
 
 	function procGoogleotpUserConfig()
 	{
-		if(!Context::get("is_logged")) return $this->createObject(-1,"로그인해주세요");
+		if(!Context::get("is_logged")) return $this->createObject(-1, "로그인해주세요");
 
 		$oGoogleOTPModel = getModel('googleotp');
 
@@ -16,10 +16,11 @@ class googleotpController extends googleotp
 		}
 
 		$cond = new stdClass();
-		$cond->srl=Context::get('logged_info')->member_srl;
+		$cond->srl = Context::get('logged_info')->member_srl;
 		$cond->use = Context::get("use") === "Y" ? "Y" : "N";
+		$cond->issue_type = Context::get("issue_type");
 		$output = executeQuery('googleotp.updateGoogleotpuserconfigbySrl', $cond);
-		if(!$output->toBool()) return $this->createObject(-1,"ERROR");
+		if(!$output->toBool()) return $this->createObject(-1, "ERROR");
 
 		if($cond->use === "Y")
 		{
@@ -77,13 +78,13 @@ class googleotpController extends googleotp
 		if(!Context::get('is_logged')) return $this->createObject();
 
 		$oMemberController = getController('member');
-		$oMemberController->addMemberMenu('dispGoogleotpUserConfig', "OTP 설정");
+		$oMemberController->addMemberMenu('dispGoogleotpUserConfig', "로그인 2차 인증 설정");
 		if($logged_info->is_admin== 'Y')
 		{
 			$target_srl = Context::get('target_srl');
 
 			$url = getUrl('','act','dispGoogleotpUserConfig','member_srl',$target_srl);
-			$oMemberController->addMemberPopupMenu($url, '유저 OTP 설정', '');
+			$oMemberController->addMemberPopupMenu($url, '유저 로그인 2차 인증 관리', '');
 		}
 		return $this->createObject();
 	}
