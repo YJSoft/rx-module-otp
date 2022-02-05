@@ -14,6 +14,7 @@ class googleotpAdminController extends googleotp
 		$vars = Context::getRequestVars();
 
 		$config->skins = $vars->skins;
+		$config->allow_issue_type = $vars->allow_issue_type;
 		
 		$output = $this->setConfig($config);
 		if (!$output->toBool())

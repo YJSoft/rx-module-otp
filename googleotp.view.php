@@ -46,6 +46,7 @@ class googleotpView extends googleotp
 		Context::set("user_config", $userconfig);
 		Context::set("user_mail", $logged_info->email_address);
 		Context::set("user_phone", $logged_info->phone_number ?: '설정 안됨');
+		Context::set("googleotp_config", $this->getConfig());
 	}
 
 	function dispGoogleotpInputotp()

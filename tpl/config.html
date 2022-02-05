@@ -11,6 +11,25 @@
 	</div>
 
 	<section class="section">
+		<h1>기본 설정</h1>
+		<div class="x_control-group">
+			<label class="x_control-label">허용 인증수단</label>
+			<div class="x_controls">
+				<label class="inline">
+					<input type="checkbox" name="allow_issue_type[]" id="auth_otp" value="otp" checked="checked"|cond="in_array('otp', $googleotp_config->allow_issue_type)" /> Google OTP
+				</label>
+				<label class="inline">
+					<input type="checkbox" name="allow_issue_type[]" id="auth_email" value="email" checked="checked"|cond="in_array('email', $googleotp_config->allow_issue_type)" /> 이메일 인증
+				</label>
+				<label class="inline">
+					<input type="checkbox" name="allow_issue_type[]" id="auth_sms" value="sms" checked="checked"|cond="in_array('sms', $googleotp_config->allow_issue_type)" /> SMS 인증
+				</label>
+				<p class="x_help-block">허용할 인증수단을 선택해주세요.</p>
+			</div>
+		</div>
+	</section>
+
+	<section class="section">
 		<h1>스킨설정</h1>
 		<div class="x_control-group">
 			<label class="x_control-label" for="skin">{$lang->skin}</label>
