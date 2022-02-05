@@ -34,6 +34,13 @@
 				<p class="x_help-block">허용할 인증수단을 선택해주세요.</p>
 			</div>
 		</div>
+		<div class="x_control-group">
+			<label class="x_control-label">스팸 방지 기능</label>
+			<div class="x_controls">
+				<label class="x_inline" for="use_captcha"><input type="checkbox" name="use_captcha" id="use_captcha" value="Y" checked="checked"|cond="$googleotp_config->use_captcha == 'Y'" /> 캡챠 사용</label>
+				<p class="x_help-block"><a href="{getUrl('', 'module', 'admin', 'act', 'dispSpamfilterAdminConfigCaptcha')}" target="_blank">스팸필터 모듈에 설정한 캡챠 데이터</a>를 사용하여 OTP 인증시 캡챠를 사용합니다. 라이믹스 전용 기능입니다.</p>
+			</div>
+		</div>
 	</section>
 
 	<section class="section">

@@ -56,6 +56,7 @@ class googleotpView extends googleotp
 			return $this->createObject(-1, "로그인해주세요");
 		}
 
+		$config = $this->getConfig();
 		$logged_info = Context::get("logged_info");
 		$member_srl = $logged_info->member_srl;
 		$oGoogleOTPModel = getModel('googleotp');
@@ -78,9 +79,22 @@ class googleotpView extends googleotp
 			}
 		}
 
+		$spamfilter_config = ModuleModel::getModuleConfig('spamfilter');
+		if (
+			$config->use_captcha == 'Y' && defined(RX_BASEDIR) &&
+			isset($spamfilter_config) && isset($spamfilter_config->captcha)
+			&& $spamfilter_config->captcha->type === 'recaptcha'
+			&& $logged_info->is_admin !== 'Y'
+		)
+		{
+			include_once RX_BASEDIR . 'modules/spamfilter/spamfilter.lib.php';
+			spamfilter_reCAPTCHA::init($spamfilter_config->captcha);
+			Context::set('captcha', new spamfilter_reCAPTCHA());
+		}
+
 		Context::set("member_srl", $member_srl);
 		Context::set("logged_info", $logged_info);
 		Context::set("user_config", $userconfig);
-		Context::set("googleotp_config", $this->getConfig());
+		Context::set("googleotp_config", $config);
 	}
 }
