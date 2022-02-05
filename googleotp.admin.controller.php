@@ -17,6 +17,7 @@ class googleotpAdminController extends googleotp
 		$config->allow_issue_type = $vars->allow_issue_type;
 		$config->auth_retry_hour = $vars->auth_retry_hour;
 		$config->auth_retry_limit = $vars->auth_retry_limit;
+		$config->use_captcha = $vars->use_captcha ? 'Y' : 'N';
 		
 		$output = $this->setConfig($config);
 		if (!$output->toBool())
