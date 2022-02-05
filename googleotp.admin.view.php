@@ -51,5 +51,8 @@ class googleotpAdminView extends googleotp
 		$userOtpConfig = getModel('googleotp')->getUserConfig(Context::get('srl'));
 		
 		Context::set('user_config', $userOtpConfig);
+
+		$config = $this->getConfig();
+		Context::set('googleotp_config', $config);
 	}
 }
