@@ -1,0 +1,12 @@
+<query id="insertAuthSendLog" action="insert">
+    <tables>
+        <table name="googleotp_authsendlog" />
+    </tables>
+    <columns>
+        <column name="member_srl" var="member_srl" notnull="notnull" />
+        <column name="number" var="number" notnull="notnull" />
+        <column name="issue_type" var="issue_type" notnull="notnull" />
+        <column name="address" var="address" notnull="notnull" />
+        <column name="time" var="time" notnull="notnull" />
+    </columns>
+</query>

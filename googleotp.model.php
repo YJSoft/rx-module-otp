@@ -91,4 +91,95 @@ class googleotpModel extends googleotp
 		if(!$output->toBool()) return FALSE;
 		else return $output->data;
 	}
+
+	public function AvailableToSendEmail($member_srl)
+	{
+		$config = $this->getConfig();
+
+		// 이메일 최대 발송 횟수 확인
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$args->issue_type = 'email';
+		$args->time = time() - ($config->auth_retry_hour * 3600);
+		$output = executeQuery('googleotp.getAuthSendLogCount', $args);
+		if(!$output->toBool()) return FALSE;
+		if($output->data->count >= $config->auth_retry_limit) return FALSE;
+
+		// 최종 이메일 발송 시간으로부터 1분이 지났는지 확인
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$args->issue_type = 'email';
+		$output = executeQuery('googleotp.getLastSentTime', $args);
+		if(!$output->toBool()) return FALSE;
+		if($output->data->time > time() - (60)) return FALSE;
+
+		return TRUE;
+	}
+
+	public function AvailableToSendSMS($member_srl)
+	{
+		$config = $this->getConfig();
+
+		// SMS 최대 발송 횟수 확인
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$args->issue_type = 'sms';
+		$args->time = time() - ($config->auth_retry_hour * 3600);
+		$output = executeQuery('googleotp.getAuthSendLogCount', $args);
+		if(!$output->toBool()) return FALSE;
+		if($output->data->count >= $config->auth_retry_limit) return FALSE;
+
+		// 최종 SMS 발송 시간으로부터 1분이 지났는지 확인
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$args->issue_type = 'sms';
+		$output = executeQuery('googleotp.getLastSentTime', $args);
+		if(!$output->toBool()) return FALSE;
+		if($output->data->time > time() - (60)) return FALSE;
+
+		return TRUE;
+	}
+
+	public static function sendAuthEmail($member_srl, $auth_number)
+	{
+		$oMemberModel = getModel('member');
+		$member_info = $oMemberModel->getMemberInfoByMemberSrl($member_srl);
+
+		$mail_address = $member_info->email_address;
+		$mail_title = "2차 인증 메일입니다.";
+		$mail_content = "2차 인증 번호는 [".$auth_number."] 입니다.";
+
+		// @todo 메일 발송
+
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$args->number = $auth_number;
+		$args->issue_type = 'email';
+		$args->address = $member_info->email_address;
+		$args->time = time();
+		$output = executeQuery('googleotp.insertAuthSendLog', $args);
+
+		return true;
+	}
+
+	public static function sendAuthSMS($member_srl, $auth_number)
+	{
+		$oMemberModel = getModel('member');
+		$member_info = $oMemberModel->getMemberInfoByMemberSrl($member_srl);
+
+		$sms_address = $member_info->phone_number;
+		$sms_content = "2차 인증 번호는 [".$auth_number."] 입니다.";
+
+		// @todo SMS 발송
+
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$args->number = $auth_number;
+		$args->issue_type = 'sms';
+		$args->address = $member_info->phone_number;
+		$args->time = time();
+		$output = executeQuery('googleotp.insertAuthSendLog', $args);
+
+		return true;
+	}
 }
