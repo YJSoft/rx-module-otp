@@ -51,5 +51,36 @@ class googleotpView extends googleotp
 
 	function dispGoogleotpInputotp()
 	{
+		if (!Context::get("is_logged"))
+		{
+			return $this->createObject(-1, "로그인해주세요");
+		}
+
+		$logged_info = Context::get("logged_info");
+		$member_srl = $logged_info->member_srl;
+		$oGoogleOTPModel = getModel('googleotp');
+		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
+
+		if($userconfig->issue_type == 'email')
+		{
+			if($oGoogleOTPModel->AvailableToSendEmail($member_srl)) // 인증 메일을 보낼 수 있을 경우
+			{
+				$result = $oGoogleOTPModel->sendAuthEmail($member_srl, rand(100000, 999999));
+				Context::set('email_sent', $result);
+			}
+		}
+		else if($userconfig->issue_type == 'sms')
+		{
+			if($oGoogleOTPModel->AvailableToSendSMS($member_srl)) // 인증 SMS를 보낼 수 있을 경우
+			{
+				$result = $oGoogleOTPModel->sendAuthSMS($member_srl, rand(100000, 999999));
+				Context::set('sms_sent', $result);
+			}
+		}
+
+		Context::set("member_srl", $member_srl);
+		Context::set("logged_info", $logged_info);
+		Context::set("user_config", $userconfig);
+		Context::set("googleotp_config", $this->getConfig());
 	}
 }

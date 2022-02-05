@@ -9,6 +9,7 @@
 		
 		<action name="procGoogleotpAdminInsertConfig" type="controller"/>
 		<action name="procGoogleotpAdminUpdateConfig" type="controller" />
+		<action name="procGoogleotpResendauthmessage" type="controller" />
 
 		<action name="dispGoogleotpUserConfig" type="view"/>
 		<action name="dispGoogleotpInputotp" type="view"/>
