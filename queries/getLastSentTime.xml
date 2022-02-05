@@ -1,0 +1,12 @@
+<query id="getLastSentTime" action="select">
+    <tables>
+        <table name="googleotp_authsendlog" />
+    </tables>
+    <columns>
+        <column name="MAX(time)" alias="time" />
+    </columns>
+    <conditions>
+        <condition operation="equal" column="member_srl" var="member_srl" notnull="notnull" />
+        <condition operation="equal" column="issue_type" var="issue_type" pipe="and" />
+    </conditions>
+</query>

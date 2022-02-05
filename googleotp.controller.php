@@ -77,6 +77,40 @@ class googleotpController extends googleotp
 		}
 	}
 
+	function procGoogleotpResendauthmessage()
+	{
+		if($_SESSION['googleotp_passed']) return $this->createObject(-1,"이미 인증했습니다.");
+
+		$member_srl = Context::get('member_srl');
+		$oGoogleOTPModel = getModel('googleotp');
+		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
+
+		if($userconfig->issue_type == 'email')
+		{
+			if($oGoogleOTPModel->AvailableToSendEmail($member_srl)) // 인증 메일을 보낼 수 있을 경우
+			{
+				$result = $oGoogleOTPModel->sendAuthEmail($member_srl, rand(100000, 999999));
+				return $this->createObject(0, "인증 메일을 재발송했습니다.");
+			}
+			else
+			{
+				return $this->createObject(-1, "인증 메일을 재발송할 수 없습니다.\n\n관리자에게 문의하세요.");
+			}
+		}
+		else if($userconfig->issue_type == 'sms')
+		{
+			if($oGoogleOTPModel->AvailableToSendSMS($member_srl)) // 인증 SMS를 보낼 수 있을 경우
+			{
+				$result = $oGoogleOTPModel->sendAuthSMS($member_srl, rand(100000, 999999));
+				return $this->createObject(0, "인증 문자를 재발송했습니다.");
+			}
+			else
+			{
+				return $this->createObject(-1, "인증 문자를 재발송할 수 없습니다.\n\n관리자에게 문의하세요.");
+			}
+		}
+	}
+
 	function triggerAddMemberMenu()
 	{
 		$logged_info = Context::get('logged_info');
