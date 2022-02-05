@@ -88,7 +88,7 @@ class googleotpController extends googleotp
 		return $this->createObject();
 	}
 
-	function triggerHijackLogin(&$obj) {
+	function triggerHijackLogin($obj) {
 		if(!Context::get("is_logged") || $obj->act === "dispMemberLogout") {
 			unset($_SESSION['googleotp_passed']);
 			return;
@@ -98,7 +98,7 @@ class googleotpController extends googleotp
 		$userconfig = $oGoogleOTPModel->getUserConfig(Context::get('logged_info')->member_srl);
 		if($userconfig->use === "Y") {
 			$allowedact = array("dispGoogleotpInputotp","procGoogleotpInputotp","procMemberLogin","dispMemberLogout");
-			if(!in_array($obj->act,$allowedact) && !$_SESSION['googleotp_passed'])
+			if(!in_array($obj->act, $allowedact) && !$_SESSION['googleotp_passed'])
 			{
 				$_SESSION['beforeaddress'] = getNotEncodedUrl();
 				header("Location: " . getNotEncodedUrl('act','dispGoogleotpInputotp'));
