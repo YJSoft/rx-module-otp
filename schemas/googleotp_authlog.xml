@@ -2,6 +2,7 @@
     <column name="idx" type="number" notnull="notnull" primary_key="primary_key" auto_increment="auto_increment" />
     <column name="srl" type="number" notnull="notnull" />
     <column name="number" type="varchar" size="10" notnull="notnull" index="idx_number" />
+    <column name="issue_type" type="varchar" size="10" notnull="notnull" default="otp" />
     <column name="issuccess" type="varchar" size="5" notnull="notnull" index="idx_issuccess" />
     <column name="time" type="number" notnull="notnull" index="idx_time" />
 </table>

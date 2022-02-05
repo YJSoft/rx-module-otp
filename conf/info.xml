@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module version="0.2">
-	<title xml:lang="ko">XE GoogleOTP Module</title>
-	<description xml:lang="ko">Add google's otp to XpressEngine</description>
-	<version>0.2</version>
-	<date>2017-09-05</date>
+	<title xml:lang="ko">로그인 2차 인증 모듈</title>
+	<description xml:lang="ko">회원 로그인시 2차 인증 수단을 추가할 수 있습니다.</description>
+	<version>1.0.0</version>
+	<date>2022-02-05</date>
 	<author email_address="yjsoft@yjsoft.pe.kr" link="https://yjsoft.pe.kr">
 		<name xml:lang="ko">YJSoft</name>
 	</author>
