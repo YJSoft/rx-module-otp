@@ -15,6 +15,8 @@ class googleotpAdminController extends googleotp
 
 		$config->skins = $vars->skins;
 		$config->allow_issue_type = $vars->allow_issue_type;
+		$config->auth_retry_hour = $vars->auth_retry_hour;
+		$config->auth_retry_limit = $vars->auth_retry_limit;
 		
 		$output = $this->setConfig($config);
 		if (!$output->toBool())
