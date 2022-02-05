@@ -33,6 +33,7 @@ class googleotpAdminController extends googleotp
 		$args = new stdClass();
 		$args->srl = $obj->srl;
 		$args->use = $obj->use;
+		$args->issue_type = $obj->issue_type;
 		$output = executeQuery('googleotp.updateGoogleotpuserconfigbySrl', $args);
 		if(!$output->toBool())
 		{

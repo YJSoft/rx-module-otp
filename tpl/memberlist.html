@@ -10,7 +10,8 @@
 		<tr>
 			<th scope="col">번호</th>
 			<th scope="col">닉네임</th>
-			<th scope="col">otp 사용여부</th>
+			<th scope="col">2차 인증 사용여부</th>
+			<th scope="col">인증 수단</th>
 			<th scope="col">수정</th>
 		</tr>
 		</thead>
@@ -19,8 +20,9 @@
 			<tr>
 				<td>{$no}</td>
 				<td>{$val->member_info->nick_name}</td>
-				<td><!--@if($val->use == 'Y')--> 사용 <!--@else--> 사용 안 함<!--@end--></td>
-				<td><a href="{getUrl('', 'module', 'admin', 'act', 'dispGoogleotpAdminMemberSetup', 'srl', $val->srl)}">수정</a></td>
+				<td><!--@if($val->use == 'Y')--> 사용<!--@else-->사용 안 함<!--@end--></td>
+				<td><!--@if($val->issue_type == 'otp')-->Google OTP<!--@elseif($val->issue_type == 'email')-->이메일<!--@elseif($val->issue_type == 'sms')-->문자<!--@endif--></td>
+				<td><a href="{getUrl('', 'module', 'admin', 'act', 'dispGoogleotpAdminMemberSetup', 'srl', $val->srl, 'nick_name', $val->member_info->nick_name)}">수정</a></td>
 			</tr>
 			<!--@end-->
 		</tbody>

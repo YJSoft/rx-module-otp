@@ -6,9 +6,15 @@
 	<input type="hidden" name="success_return_url" value="{getRequestUriByServerEnviroment()}" />
 	<input type="hidden" name="srl" value="{$srl}" /> 
 	<section class="section">
-		<h1>회원 OTP 설정</h1>
+		<h1>회원 2차 인증 설정</h1>
 		<div class="x_control-group">
-			<label class="x_control-label" for="use">OTP설정</label>
+			<label class="x_control-label" for="use">회원 닉네임</label>
+			<div class="x_controls">
+				<p>{Context::get('nick_name')} ({$srl})</p>
+			</div>
+		</div>
+		<div class="x_control-group">
+			<label class="x_control-label" for="use">2차 인증 사용 여부</label>
 			<div class="x_controls">
 				<select name="use" id="use">
 					<option value="Y" selected="selected"|cond="$user_config->use == 'Y'">
@@ -20,6 +26,23 @@
 				</select>
 			</div>
 		</div>
+		<div class="x_control-group">
+			<label class="x_control-label" for="issue_type">인증 수단</label>
+			<div class="x_controls">
+				<select name="issue_type" id="issue_type">
+					<option value="otp" selected="selected"|cond="$user_config->issue_type == 'otp'" disabled="disabled"|cond="!in_array('otp', $googleotp_config->allow_issue_type)">
+						Google OTP <!--@if(!in_array('otp', $googleotp_config->allow_issue_type))-->(비활성화됨)<!--@endif-->
+					</option>
+					<option value="email" selected="selected"|cond="$user_config->issue_type == 'email'" disabled="disabled"|cond="!in_array('email', $googleotp_config->allow_issue_type)">
+						이메일 <!--@if(!in_array('email', $googleotp_config->allow_issue_type))-->(비활성화됨)<!--@endif-->
+					</option>
+					<option value="sms" selected="selected"|cond="$user_config->issue_type == 'sms'"  disabled="disabled"|cond="!in_array('sms', $googleotp_config->allow_issue_type)">
+						문자 (SMS) <!--@if(!in_array('sms', $googleotp_config->allow_issue_type))-->(비활성화됨)<!--@endif-->
+					</option>
+				</select>
+			</div>
+		</div>
+
 		<div class="btnArea x_clearfix">
 			<button type="submit" class="x_btn x_btn-primary x_pull-right">{$lang->cmd_registration}</button>
 		</div>
