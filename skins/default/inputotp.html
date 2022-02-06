@@ -27,7 +27,7 @@
             <div class="control-group">
                 <label class="control-label">OTP 번호 입력</label>
                 <div class="controls">
-                    <input type="text" name="otpinput" />
+                    <input type="text" name="otpinput" required />
                     <!--@if($user_config->issue_type == 'otp')-->
                     <p class="help-block">Google OTP 앱에 뜬 번호를 입력해주세요.</p>
                     <!--@elseif($user_config->issue_type == 'email')-->
@@ -40,7 +40,7 @@
             <div class="control-group">
                 <label class="control-label">인증 <!--@if($user_config->issue_type == 'email')-->메일<!--@elseif($user_config->issue_type == 'sms')-->문자<!--@endif--> 재전송</label>
                 <div class="controls">
-                    <input type="button" class="btn" onclick="return false;" value="인증 <!--@if($user_config->issue_type == 'email')-->메일<!--@elseif($user_config->issue_type == 'sms')-->문자<!--@endif--> 재전송 (01:30)">
+                    <input type="button" id="reauth_send" class="btn" onclick="return false;" value="인증 <!--@if($user_config->issue_type == 'email')-->메일<!--@elseif($user_config->issue_type == 'sms')-->문자<!--@endif--> 재전송 (01:30)">
                 </div>
             </div>
             <!--@if($captcha)-->
@@ -71,11 +71,11 @@
         if(resend_time <= 0)
         {
             clearInterval(timerId);
-            jQuery('.btn').attr('onclick','return reSendAuth();').val('인증 <!--@if($user_config->issue_type == "email")-->메일<!--@elseif($user_config->issue_type == "sms")-->문자<!--@endif--> 재전송');
+            jQuery('#reauth_send').attr('onclick','return reSendAuth();').val('인증 <!--@if($user_config->issue_type == "email")-->메일<!--@elseif($user_config->issue_type == "sms")-->문자<!--@endif--> 재전송');
         }
         else
         {
-            jQuery('.btn').attr('onclick','return false;').val('인증 <!--@if($user_config->issue_type == "email")-->메일<!--@elseif($user_config->issue_type == "sms")-->문자<!--@endif--> 재전송 ('+new Date(resend_time * 1000).toISOString().substr(14, 5)+')');
+            jQuery('#reauth_send').attr('onclick','return false;').val('인증 <!--@if($user_config->issue_type == "email")-->메일<!--@elseif($user_config->issue_type == "sms")-->문자<!--@endif--> 재전송 ('+new Date(resend_time * 1000).toISOString().substr(14, 5)+')');
         }
     }
     function reSendAuth()

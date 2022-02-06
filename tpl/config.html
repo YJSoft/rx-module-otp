@@ -27,13 +27,42 @@
 				<p class="x_help-block">허용할 인증수단을 선택해주세요.</p>
 			</div>
 		</div>
+	</section>
+
+	<section class="section">
+		<h1>이메일/SMS 인증 설정</h1>
+
 		<div class="x_control-group">
-			<label class="x_control-label">인증 메일/SMS 재전송 가능 횟수</label>
+			<label class="x_control-label">재전송 가능 횟수</label>
 			<div class="x_controls">
 				<input type="number" name="auth_retry_hour" value="{$googleotp_config->auth_retry_hour}" /> 시간 이내 최대 <input type="number" name="auth_retry_limit" value="{$googleotp_config->auth_retry_limit}" /> 회 까지
-				<p class="x_help-block">허용할 인증수단을 선택해주세요.</p>
+				<p class="x_help-block">인증 메일/SMS를 재발송 할 수 있는 시간 내 최대 횟수를 지정해주세요.</p>
 			</div>
 		</div>
+
+		<div class="x_control-group">
+			<label class="x_control-label">인증키 유효시간</label>
+			<div class="x_controls">
+				<input type="number" name="auth_key_vaild_hour" value="{$googleotp_config->auth_key_vaild_hour}" /> 시간
+				<p class="x_help-block">키가 발행된 시점을 기준으로, 설정한 시간 이내에만 인증키가 유효합니다. 유효시간 이후 해당 인증키 사용시 인증이 처리되지 않습니다.</p>
+			</div>
+		</div>
+
+		<div class="x_control-group">
+			<label class="x_control-label" for="multiple_auth_key_process">여러 개의 인증키 처리 방식</label>
+			<div class="x_controls">
+				<select name="multiple_auth_key_process" id="multiple_auth_key_process">
+					<option value="0" selected="selected"|cond="$googleotp_config->multiple_auth_key_process == 0">유효기간 이내의 키를 전부 허용합니다.</option>
+					<option value="1" selected="selected"|cond="$googleotp_config->multiple_auth_key_process == 1">가장 최근의 키 하나만 허용합니다.</option>
+				</select>
+				<p class="x_help-block">인증키를 재발급하는 등 키를 여러개 발급하여 인증 메일/SMS가 여러개 도착하였을 경우, 가장 최근에 발송한 키만 인증키로 사용할 수 있도록 허용할지, 혹은 발송된 모든 키를 인증키로 사용할 수 있도록 허용할지 선택해주세요.</p>
+			</div>
+		</div>
+	</section>
+
+	<section class="section">
+		<h1>보안 설정</h1>
+
 		<div class="x_control-group">
 			<label class="x_control-label">스팸 방지 기능</label>
 			<div class="x_controls">
