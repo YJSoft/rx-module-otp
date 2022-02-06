@@ -56,6 +56,14 @@ class googleotpView extends googleotp
 			return $this->createObject(-1, "로그인해주세요");
 		}
 
+		if($_SESSION['googleotp_passed'])
+		{
+			$redirect_url = $_SESSION['beforeaddress'] ?: getNotEncodedUrl('');
+			header("Location: " . $redirect_url);
+			Context::close();
+			die();
+		}
+
 		$config = $this->getConfig();
 		$logged_info = Context::get("logged_info");
 		$member_srl = $logged_info->member_srl;
