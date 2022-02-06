@@ -101,6 +101,7 @@ class googleotpController extends googleotp
 
 	function procGoogleotpResendauthmessage()
 	{
+		Context::setResponseMethod('JSON');
 		if($_SESSION['googleotp_passed']) return $this->createObject(-1,"이미 인증했습니다.");
 
 		$member_srl = Context::get('member_srl');
@@ -159,7 +160,7 @@ class googleotpController extends googleotp
 		$oGoogleOTPModel = getModel('googleotp');
 		$userconfig = $oGoogleOTPModel->getUserConfig(Context::get('logged_info')->member_srl);
 		if($userconfig->use === "Y") {
-			$allowedact = array("dispGoogleotpInputotp","procGoogleotpInputotp","procMemberLogin","dispMemberLogout");
+			$allowedact = array("dispGoogleotpInputotp","procGoogleotpInputotp","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage");
 			if(!in_array($obj->act, $allowedact) && !$_SESSION['googleotp_passed'])
 			{
 				$_SESSION['beforeaddress'] = getNotEncodedUrl();
