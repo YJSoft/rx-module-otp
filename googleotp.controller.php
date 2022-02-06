@@ -51,8 +51,8 @@ class googleotpController extends googleotp
 			$spamfilter_config = ModuleModel::getModuleConfig('spamfilter');
 			$logged_info = Context::get('logged_info');
 			if (
-				$config->use_captcha == 'Y' && defined(RX_BASEDIR) &&
-				isset($spamfilter_config) && isset($spamfilter_config->captcha)
+				$config->use_captcha == 'Y'
+				&& isset($spamfilter_config) && isset($spamfilter_config->captcha)
 				&& $spamfilter_config->captcha->type === 'recaptcha'
 				&& $logged_info->is_admin !== 'Y'
 			)
