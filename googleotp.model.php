@@ -191,17 +191,22 @@ class googleotpModel extends googleotp
 		$mail_title = "2차 인증 메일입니다.";
 		$mail_content = "2차 인증 번호는 [".$auth_number."] 입니다.";
 
-		// @todo 메일 발송
+		$oMail = new \Rhymix\Framework\Mail();
+		$oMail->setSubject($mail_title);
+		$oMail->setBody($mail_content);
+		$oMail->addTo($member_info->email_address, $member_info->nick_name);
+		$send_status = $oMail->send();
 
 		$args = new stdClass();
 		$args->member_srl = $member_srl;
 		$args->number = $auth_number;
 		$args->issue_type = 'email';
 		$args->address = $member_info->email_address;
+		$args->send_status = $send_status ? 'Y' : 'N';
 		$args->time = time();
 		$output = executeQuery('googleotp.insertAuthSendLog', $args);
 
-		return true;
+		return $send_status;
 	}
 
 	public static function sendAuthSMS($member_srl, $auth_number)
@@ -212,16 +217,41 @@ class googleotpModel extends googleotp
 		$sms_address = $member_info->phone_number;
 		$sms_content = "2차 인증 번호는 [".$auth_number."] 입니다.";
 
-		// @todo SMS 발송
+		$oSmsHandler = new Rhymix\Framework\SMS();
+		$phone_country = $member_info->phone_country;
+		$phone_number = $member_info->phone_number;
+
+		$send_status = true;
+		if(empty($phone_number))
+		{
+			$send_status = false;
+		}
+
+		// Sending SMS outside of Korea is currently not supported.
+		if($phone_country !== 'KOR')
+		{
+			$send_status = false;
+		}
+
+		$phone_format = Rhymix\Framework\Korea::isValidPhoneNumber($phone_number);
+		if($phone_format === false)
+		{
+			$send_status = false;
+		}
+
+		$oSmsHandler->addTo($phone_number);
+		$oSmsHandler->setContent($content);
+		if($send_status) $send_status = $oSmsHandler->send();
 
 		$args = new stdClass();
 		$args->member_srl = $member_srl;
 		$args->number = $auth_number;
 		$args->issue_type = 'sms';
 		$args->address = $member_info->phone_number;
+		$args->send_status = $send_status ? 'Y' : 'N';
 		$args->time = time();
 		$output = executeQuery('googleotp.insertAuthSendLog', $args);
 
-		return true;
+		return $send_status;
 	}
 }
