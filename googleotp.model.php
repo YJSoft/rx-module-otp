@@ -20,12 +20,13 @@ class googleotpModel extends googleotp
 		return $output->toBool();
 	}
 	
-	function insertAuthlog($member_srl,$number,$issuccess) {
+	function insertAuthlog($member_srl,$number,$issuccess,$issue_type="unknown") {
 	    if(!$this->checkUserConfig($member_srl)) return FALSE;
 
 		$cond = new stdClass();
 		$cond->srl = $member_srl;
 		$cond->number = $number;
+		$cond->issue_type = $issue_type;
 		$cond->issuccess = $issuccess;
 		$cond->time = time();
 		$output = executeQuery('googleotp.insertGoogleotpauthlog', $cond);
@@ -77,9 +78,50 @@ class googleotpModel extends googleotp
 
 	function checkOTPNumber($member_srl,$number)
 	{
-		$config = $this->getUserConfig($member_srl);
-		$ga = new PHPGangsta_GoogleAuthenticator();
-		return $ga->verifyCode($config->otp_id, $number, 2);
+		$user_config = $this->getUserConfig($member_srl);
+		$config = $this->getConfig();
+
+		if($user_config->issue_type == 'otp')
+		{
+			$ga = new PHPGangsta_GoogleAuthenticator();
+			return $ga->verifyCode($user_config->otp_id, $number, 2);
+		}
+		else if($user_config->issue_type == 'email' || $user_config->issue_type == 'sms')
+		{
+			if($config->multiple_auth_key_process == 0) // 유효기간 내 전부 허용
+			{
+				$args = new stdClass();
+				$args->member_srl = $member_srl;
+				$args->issue_type = $user_config->issue_type;
+				$args->time = time() - ($config->auth_key_vaild_hour * 3600);
+				$output = executeQueryArray('googleotp.getAuthSendLog', $args);
+				if(!$output->toBool()) return FALSE;
+
+				foreach($output->data as $key => $val) // 유효시간내 전송한 데이터 전체 확인
+				{
+					if($val->number == $number) return TRUE;
+				}
+
+				return FALSE;
+			}
+			else if($config->multiple_auth_key_process == 1) // 가장 최근에 발행된 키만 허용
+			{
+				$args = new stdClass();
+				$args->member_srl = $member_srl;
+				$args->issue_type = $user_config->issue_type;
+				$args->time = time() - ($config->auth_key_vaild_hour * 3600);
+				$output = executeQuery('googleotp.getLatestAuthSendLog', $args);
+				if(!$output->toBool()) return FALSE;
+				if(empty($output->data)) return FALSE;
+				if($output->data->number == $number) return TRUE;
+
+				return FALSE;
+			}
+		}
+		else
+		{
+			return FALSE;
+		}
 	}
 
 	function getUserConfig($member_srl)

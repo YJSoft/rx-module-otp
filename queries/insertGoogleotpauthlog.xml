@@ -5,6 +5,7 @@
     <columns>
         <column name="srl" var="srl" notnull="notnull" />
         <column name="number" var="number" notnull="notnull" />
+        <column name="issue_type" var="issue_type" notnull="notnull" />
         <column name="issuccess" var="issuccess" notnull="notnull" />
         <column name="time" var="time" notnull="notnull" />
     </columns>
