@@ -68,29 +68,33 @@ class googleotpController extends googleotp
 		// change 111 111 to 111111
 	    $otpnumber = explode(" ",$otpnumber);
 	    $otpnumber = implode("",$otpnumber);
+
+		if(!$otpnumber) return $this->createObject(-1,"인증번호를 입력해주세요.");
 	    
 		$member_srl = Context::get('logged_info')->member_srl;
 
 		$oGoogleOTPModel = getModel('googleotp');
 		$config = $oGoogleOTPModel->getUserConfig($member_srl);
+		$issue_type = $config->issue_type;
 		
 		if($oGoogleOTPModel->checkOTPNumber($member_srl,$otpnumber))
 		{
 		    if(!$oGoogleOTPModel->checkUsedNumber($member_srl,$otpnumber))
 		    {
-		        return $this->createObject(-1,"이미 인증에 사용된 OTP 번호입니다. 다른 번호를 사용해주세요.");
+		        return $this->createObject(-1,"이미 인증에 사용된 번호입니다. 다른 번호를 사용해주세요.");
 		    }
 		    else
 		    {
-		        $oGoogleOTPModel->insertAuthlog($member_srl,$otpnumber,"Y");
+		        $oGoogleOTPModel->insertAuthlog($member_srl, $otpnumber, "Y", $issue_type);
 			    $_SESSION['googleotp_passed'] = TRUE;
 			    $this->setRedirectUrl($_SESSION['beforeaddress']);
 		    }
 		}
 		else
 		{
-		    $oGoogleOTPModel->insertAuthlog($member_srl,$otpnumber,"N");
-			$this->setMessage("잘못된 OTP 번호입니다");
+		    $oGoogleOTPModel->insertAuthlog($member_srl, $otpnumber, "N", $issue_type);
+			$this->setError(-1);
+			$this->setMessage("잘못된 인증 번호입니다");
 			$this->setRedirectUrl(getNotEncodedUrl('', 'act', 'dispGoogleotpInputotp'));
 		}
 	}
