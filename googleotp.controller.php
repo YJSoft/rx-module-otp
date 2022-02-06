@@ -36,7 +36,7 @@ class googleotpController extends googleotp
 		if(Context::get('xeVirtualRequestMethod') !== 'xml')
 		{
 			$this->setMessage('success_updated');
-			$this->setRedirectUrl(getNotEncodedUrl('', 'act', 'dispGoogleotpUserConfig'));
+			$this->setRedirectUrl(Context::get('error_return_url') ?: getNotEncodedUrl('', 'act', 'dispGoogleotpUserConfig'));
 		}
 	}
 
@@ -95,7 +95,7 @@ class googleotpController extends googleotp
 		    $oGoogleOTPModel->insertAuthlog($member_srl, $otpnumber, "N", $issue_type);
 			$this->setError(-1);
 			$this->setMessage("잘못된 인증 번호입니다");
-			$this->setRedirectUrl(getNotEncodedUrl('', 'act', 'dispGoogleotpInputotp'));
+			$this->setRedirectUrl(Context::get('error_return_url') ?: getNotEncodedUrl('', 'act', 'dispGoogleotpInputotp'));
 		}
 	}
 
