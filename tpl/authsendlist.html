@@ -1,0 +1,75 @@
+<include target="header.html" />
+
+<section class="section">
+	<h1>인증 메일/SMS 발송 기록</h1>
+
+	<p class="x_well x_well-small" cond="!$auth_list">전송 기록이 없습니다.</p>
+
+	<table class="x_table x_table-striped x_table-hover" style="margin-top:20px;">
+		<thead>
+		<tr>
+			<th scope="col">번호</th>
+			<th scope="col">닉네임</th>
+			<th scope="col">인증 번호</th>
+			<th scope="col">인증 수단</th>
+			<th scope="col">전송 주소</th>
+			<th scope="col">인증 일시</th>
+		</tr>
+		</thead>
+		<tbody>
+			<!--@foreach($authsend_list as $no => $val)-->
+			<tr>
+				<td>{$no}</td>
+				<td><a class="member_{$val->member_info->member_srl}" href="javascript:void(0);">{$val->member_info->nick_name}</a></td>
+				<td>{$val->number}</td>
+				<td><!--@if($val->issue_type == 'otp')-->Google OTP<!--@elseif($val->issue_type == 'email')-->이메일<!--@elseif($val->issue_type == 'sms')-->문자<!--@endif--></td>
+				<td>{$val->address}</td>
+                <td>{date('Y-m-d H:i:s', $val->time)}</td>
+			</tr>
+			<!--@end-->
+		</tbody>
+	</table>
+
+	<form action="" class="x_pagination">
+		<input type="hidden" name="error_return_url" value="" />
+		<input type="hidden" name="module" value="{$module}" />
+		<input type="hidden" name="act" value="{$act}" />
+		<input cond="$search_keyword" type="hidden" name="search_keyword" value="{$search_keyword}" />
+		<input cond="$search_target" type="hidden" name="search_target" value="{$search_target}" />
+
+		<ul>
+			<li class="x_disabled"|cond="!$page || $page == 1"><a href="{getUrl('page', '')}">&laquo; {$lang->first_page}</a></li>
+			<block cond="$page_navigation->first_page != 1 && $page_navigation->first_page + $page_navigation->page_count > $page_navigation->last_page - 1 && $page_navigation->page_count != $page_navigation->total_page">
+				{@$isGoTo = true}
+				<li>
+					<a href="#goTo" data-toggle title="{$lang->cmd_go_to_page}">&hellip;</a>
+					<span cond="$isGoTo" id="goTo" class="x_input-append">
+				<input type="number" min="1" max="{$page_navigation->last_page}" required name="page" title="{$lang->cmd_go_to_page}" />
+				<button type="submit" class="x_add-on">Go</button>
+			</span>
+				</li>
+			</block>
+
+			<!--@while($page_no = $page_navigation->getNextPage())-->
+			{@$last_page = $page_no}
+			<li class="x_active"|cond="$page_no == $page"><a  href="{getUrl('page', $page_no)}">{$page_no}</a></li>
+			<!--@end-->
+
+			<block cond="$last_page != $page_navigation->last_page && $last_page + 1 != $page_navigation->last_page">
+				{@$isGoTo = true}
+				<li>
+					<a href="#goTo" data-toggle title="{$lang->cmd_go_to_page}">&hellip;</a>
+					<span cond="$isGoTo" id="goTo" class="x_input-append">
+				<input type="number" min="1" max="{$page_navigation->last_page}" required name="page" title="{$lang->cmd_go_to_page}" />
+				<button type="submit" class="x_add-on">Go</button>
+			</span>
+				</li>
+			</block>
+			<li class="x_disabled"|cond="$page == $page_navigation->last_page"><a href="{getUrl('page', $page_navigation->last_page)}" title="{$page_navigation->last_page}">{$lang->last_page} &raquo;</a></li>
+		</ul>
+	</form>
+
+	<span class="x_pull-right x_btn-group">
+		<a class="x_btn x_btn-inverse" href="{getUrl('', 'module', 'admin', 'act', 'dispRaidtimeAdminInsertBoss')}">보스기록</a>
+	</span>
+</section>

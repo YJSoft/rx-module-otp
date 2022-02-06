@@ -6,6 +6,8 @@
 		<action name="dispGoogleotpAdminConfig" type="view" menu_name="googleotp" admin_index="true"/>
 		<action name="dispGoogleotpAdminMemberList" type="view" />
 		<action name="dispGoogleotpAdminMemberSetup" type="view" />
+		<action name="dispGoogleotpAdminAuthList" type="view" />
+		<action name="dispGoogleotpAdminAuthSendList" type="view" />
 		
 		<action name="procGoogleotpAdminInsertConfig" type="controller"/>
 		<action name="procGoogleotpAdminUpdateConfig" type="controller" />
