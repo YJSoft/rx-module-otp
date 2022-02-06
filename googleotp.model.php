@@ -214,7 +214,6 @@ class googleotpModel extends googleotp
 		$oMemberModel = getModel('member');
 		$member_info = $oMemberModel->getMemberInfoByMemberSrl($member_srl);
 
-		$sms_address = $member_info->phone_number;
 		$sms_content = "2차 인증 번호는 [".$auth_number."] 입니다.";
 
 		$oSmsHandler = new Rhymix\Framework\SMS();
@@ -240,7 +239,7 @@ class googleotpModel extends googleotp
 		}
 
 		$oSmsHandler->addTo($phone_number);
-		$oSmsHandler->setContent($content);
+		$oSmsHandler->setContent($sms_content);
 		if($send_status) $send_status = $oSmsHandler->send();
 
 		$args = new stdClass();
