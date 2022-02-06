@@ -3,7 +3,7 @@
 <section class="section">
 	<h1>인증 메일/SMS 발송 기록</h1>
 
-	<p class="x_well x_well-small" cond="!$auth_list">전송 기록이 없습니다.</p>
+	<p class="x_well x_well-small" cond="!$authsend_list">전송 기록이 없습니다.</p>
 
 	<table class="x_table x_table-striped x_table-hover" style="margin-top:20px;">
 		<thead>
@@ -13,6 +13,7 @@
 			<th scope="col">인증 번호</th>
 			<th scope="col">인증 수단</th>
 			<th scope="col">전송 주소</th>
+			<th scope="col">발송 여부</th>
 			<th scope="col">인증 일시</th>
 		</tr>
 		</thead>
@@ -24,6 +25,7 @@
 				<td>{$val->number}</td>
 				<td><!--@if($val->issue_type == 'otp')-->Google OTP<!--@elseif($val->issue_type == 'email')-->이메일<!--@elseif($val->issue_type == 'sms')-->문자<!--@endif--></td>
 				<td>{$val->address}</td>
+				<td><!--@if($val->send_status == 'Y')-->성공<!--@else-->실패<!--@end--></td>
                 <td>{date('Y-m-d H:i:s', $val->time)}</td>
 			</tr>
 			<!--@end-->

@@ -4,5 +4,6 @@
     <column name="number" type="varchar" size="10" notnull="notnull" index="idx_number" />
     <column name="issue_type" type="varchar" size="10" notnull="notnull" default="none" />
     <column name="address" type="varchar" size="255" notnull="notnull" />
+    <column name="send_status" type="varchar" size="5" notnull="notnull" />
     <column name="time" type="number" notnull="notnull" index="idx_time" />
 </table>
