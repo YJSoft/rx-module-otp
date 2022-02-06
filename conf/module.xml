@@ -13,8 +13,8 @@
 		<action name="procGoogleotpAdminUpdateConfig" type="controller" />
 		<action name="procGoogleotpResendauthmessage" type="controller" />
 
-		<action name="dispGoogleotpUserConfig" type="view"/>
-		<action name="dispGoogleotpInputotp" type="view"/>
+		<action name="dispGoogleotpUserConfig" route="TWAConfig" type="view"/>
+		<action name="dispGoogleotpInputotp" route="TWACheck" type="view"/>
 	
 		<action name="procGoogleotpUserConfig" type="controller"/>
 		<action name="procGoogleotpInputotp" type="controller"/>
