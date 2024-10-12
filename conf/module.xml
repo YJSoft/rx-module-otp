@@ -21,8 +21,8 @@
 	</actions>
 	<menus>
 		<menu name="googleotp" type="all">
-			<title xml:lang="ko">XE GoogleOTP Module</title>
-			<title xml:lang="en">XE GoogleOTP Module</title>
+			<title xml:lang="ko">Rhymix GoogleOTP Module</title>
+			<title xml:lang="en">Rhymix GoogleOTP Module</title>
 		</menu>
 	</menus>
 </module>

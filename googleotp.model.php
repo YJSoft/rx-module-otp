@@ -1,5 +1,5 @@
 <?php
-require_once(_XE_PATH_.'modules/googleotp/libs/GoogleAuthenticator.php');
+require_once(_XE_PATH_.'modules/googleotp/libs/SimpleAuthenticator.php');
 
 class googleotpModel extends googleotp
 {
@@ -11,7 +11,7 @@ class googleotpModel extends googleotp
 	{
 		if($this->checkUserConfig($member_srl)) return FALSE;
 
-		$ga = new PHPGangsta_GoogleAuthenticator();
+		$ga = new SimpleAuthenticator();
 		$cond = new stdClass();
 		$cond->srl=$member_srl;
 		$cond->otp_id = $ga->createSecret();
@@ -57,7 +57,7 @@ class googleotpModel extends googleotp
 
 	function generateQRCode($member_srl,$key)
 	{
-		$ga = new PHPGangsta_GoogleAuthenticator();
+		$ga = new SimpleAuthenticator();
 		return $ga->getQRCodeGoogleUrl($member_srl, $key);
 	}
 
@@ -66,7 +66,7 @@ class googleotpModel extends googleotp
 		if(!$this->checkUserConfig($member_srl)) {
 			return FALSE;
 		} else {
-			$ga = new PHPGangsta_GoogleAuthenticator();
+			$ga = new SimpleAuthenticator();
 
 			$cond = new stdClass();
 			$cond->srl=$member_srl;
@@ -83,7 +83,7 @@ class googleotpModel extends googleotp
 
 		if($user_config->issue_type == 'otp')
 		{
-			$ga = new PHPGangsta_GoogleAuthenticator();
+			$ga = new SimpleAuthenticator();
 			return $ga->verifyCode($user_config->otp_id, $number, 2);
 		}
 		else if($user_config->issue_type == 'email' || $user_config->issue_type == 'sms')
