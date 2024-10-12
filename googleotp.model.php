@@ -59,7 +59,7 @@ class googleotpModel extends googleotp
 	function generateQRCode($domain, $user_id, $key)
 	{
 		$ga = new SimpleAuthenticator();
-		return $ga->getQRCodeGoogleUrl($key, $domain . " - " . $user_id, $domain);
+		return $ga->getQRCodeGoogleUrl($key, $user_id, $domain);
 	}
 
 	function generateNewOTP($member_srl)
