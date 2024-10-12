@@ -27,7 +27,7 @@ class SimpleAuthenticator
      * @param string|null $usedAlg
      * @throws Exception
      */
-    public function __construct(?int $codeLength = 6, ?string $usedAlg = 'SHA256')
+    public function __construct(?int $codeLength = 6, ?string $usedAlg = 'SHA1')
     {
         $this->codeLength = $codeLength ?? 6;
         $this->alg = $usedAlg ?? 'SHA256';
