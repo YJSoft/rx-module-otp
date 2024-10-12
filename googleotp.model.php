@@ -1,5 +1,6 @@
 <?php
 require_once(_XE_PATH_.'modules/googleotp/libs/SimpleAuthenticator.php');
+use SebastianDevs\SimpleAuthenticator;
 
 class googleotpModel extends googleotp
 {
