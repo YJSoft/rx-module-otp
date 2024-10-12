@@ -7,13 +7,11 @@ class googleotpController extends googleotp
 
 	function procGoogleotpUserConfig()
 	{
+		$oGoogleOTPModel = getModel('googleotp');
 		if(!Context::get("is_logged")) return $this->createObject(-1, "로그인해주세요");
 
-		$oGoogleOTPModel = getModel('googleotp');
-
-		if(!$oGoogleOTPModel->checkUserConfig(Context::get('logged_info')->member_srl)) {
-			$oGoogleOTPModel->insertNewConfig(Context::get('logged_info')->member_srl);
-		}
+		$test_auth_key = Context::get("test_auth_key");
+		$new_ga_secret = $oGoogleOTPModel->createGASecret();
 
 		$cond = new stdClass();
 		$cond->srl = Context::get('logged_info')->member_srl;
@@ -22,6 +20,20 @@ class googleotpController extends googleotp
 
 		if($cond->use == 'Y' && !in_array($cond->issue_type, array('otp', 'email', 'sms'))) {
 			return $this->createObject(-1, "2차 인증 방식을 선택해주세요.");
+		}
+
+		if($cond->use == 'Y' && $cond->issue_type == 'otp') {
+			if(!$test_auth_key) {
+				return $this->createObject(-1, "확인용 인증코드를 입력해주세요.");
+			}
+
+			if(!$oGoogleOTPModel->checkGAOTPNumber($new_ga_secret, $test_auth_key)) {
+				return $this->createObject(-1, "확인용 인증코드가 잘못되었습니다.");
+			}
+		}
+
+		if(!$oGoogleOTPModel->checkUserConfig(Context::get('logged_info')->member_srl)) {
+			$oGoogleOTPModel->insertNewConfig(Context::get('logged_info')->member_srl, $new_ga_secret);
 		}
 
 		$output = executeQuery('googleotp.updateGoogleotpuserconfigbySrl', $cond);

@@ -26,40 +26,47 @@
                 </div>
             </div>
             <div id="tfa_enabled" style="display:none"|cond="$user_config->use != 'Y'">
-            <hr><br>
-            <div class="control-group">
-                <label class="control-label">2차 인증 방식</label>
-                <div class="controls">
-                    <!--@if(in_array('otp', $googleotp_config->allow_issue_type))-->
-                    <label class="inline">
-                        <input type="radio" name="issue_type" id="auth_otp" value="otp" checked="checked"|cond="$user_config->issue_type == 'otp'" /> Google OTP
-                    </label>
-                    <!--@endif-->
+                <hr><br>
+                <div class="control-group">
+                    <label class="control-label">2차 인증 방식</label>
+                    <div class="controls">
+                        <!--@if(in_array('otp', $googleotp_config->allow_issue_type))-->
+                        <label class="inline">
+                            <input type="radio" name="issue_type" id="auth_otp" value="otp" checked="checked"|cond="$user_config->issue_type == 'otp'" /> Google OTP
+                        </label>
+                        <!--@endif-->
 
-                    <!--@if(in_array('email', $googleotp_config->allow_issue_type))-->
-                    <label class="inline">
-                        <input type="radio" name="issue_type" id="auth_email" value="email" checked="checked"|cond="$user_config->issue_type == 'email'" /> 이메일 인증
-                    </label>
-                    <!--@endif-->
+                        <!--@if(in_array('email', $googleotp_config->allow_issue_type))-->
+                        <label class="inline">
+                            <input type="radio" name="issue_type" id="auth_email" value="email" checked="checked"|cond="$user_config->issue_type == 'email'" /> 이메일 인증
+                        </label>
+                        <!--@endif-->
 
-                    <!--@if(in_array('sms', $googleotp_config->allow_issue_type))-->
-                    <label class="inline">
-                        <input type="radio" name="issue_type" id="auth_sms" value="sms" checked="checked"|cond="$user_config->issue_type == 'sms'" /> SMS 인증
-                    </label>
-                    <!--@endif-->
-                    <p class="help-block">인증 방식을 설정해주세요.</p>
-                    <p id="google_otp_help-block" style="display:none"|cond="$user_config->issue_type != 'otp'">주의 : 하단의 QR코드를 휴대폰에서 인식하여 Google OTP에 사이트를 추가해주세요.</p>
-                    <p id="email_auth_help-block" style="display:none"|cond="$user_config->issue_type != 'email'">주의 : 다음 로그인부터 해당 이메일({$user_mail})로 인증 메일이 발송됩니다.</p>
-                    <p id="sms_auth_help-block" style="display:none"|cond="$user_config->issue_type != 'sms'">주의 : 다음 로그인부터 해당 전화번호({$user_phone})로 인증 메세지가 발송됩니다.</p>
+                        <!--@if(in_array('sms', $googleotp_config->allow_issue_type))-->
+                        <label class="inline">
+                            <input type="radio" name="issue_type" id="auth_sms" value="sms" checked="checked"|cond="$user_config->issue_type == 'sms'" /> SMS 인증
+                        </label>
+                        <!--@endif-->
+                        <p class="help-block">인증 방식을 설정해주세요.</p>
+                        <p id="google_otp_help-block" style="display:none"|cond="$user_config->issue_type != 'otp'">주의 : 하단의 QR코드를 휴대폰에서 인식하여 Google OTP에 사이트를 추가해주세요.</p>
+                        <p id="email_auth_help-block" style="display:none"|cond="$user_config->issue_type != 'email'">주의 : 다음 로그인부터 해당 이메일({$user_mail})로 인증 메일이 발송됩니다.</p>
+                        <p id="sms_auth_help-block" style="display:none"|cond="$user_config->issue_type != 'sms'">주의 : 다음 로그인부터 해당 전화번호({$user_phone})로 인증 메세지가 발송됩니다.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="control-group" id="google_otp_qr" style="display:none"|cond="$user_config->issue_type != 'otp'">
-                <label class="control-label">Google OTP QR코드</label>
-                <div class="controls">
-                    <img src="{$user_config->qrcode}" />
-                    <p class="help-block">Google OTP에 등록할 때 사용할 QR코드입니다 외부로 유출되지 않도록 아이디 및 절대 이 QR코드를 저장하지 마세요.</p>
+                <div class="control-group" id="google_otp_qr" style="display:none"|cond="$user_config->issue_type != 'otp'">
+                    <label class="control-label">Google OTP QR코드</label>
+                    <div class="controls">
+                        <img src="{$user_config->qrcode}" />
+                        <p class="help-block">Google OTP에 등록할 때 사용할 QR코드입니다 외부로 유출되지 않도록 아이디 및 절대 이 QR코드를 저장하지 마세요.</p>
+                    </div>
                 </div>
-            </div>
+                <div class="x_control-group">
+                    <label class="x_control-label">확인용 인증코드</label>
+                    <div class="x_controls">
+                        <input type="number" name="test_auth_key" value="" />
+                        <p class="x_help-block">위 QR코드를 사용해 Google OTP를 등록한 뒤 표시되는 인증코드를 입력해주세요.</p>
+                    </div>
+                </div>
             </div>
         </section>
         <div class="clearfix btnArea">

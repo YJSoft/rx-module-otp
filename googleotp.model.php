@@ -8,14 +8,19 @@ class googleotpModel extends googleotp
 	{
 	}
 
-	function insertNewConfig($member_srl)
+	function createGASecret() {
+		$ga = new SimpleAuthenticator();
+		return $ga->createSecret();
+	}
+
+	function insertNewConfig($member_srl, $otp_id)
 	{
 		if($this->checkUserConfig($member_srl)) return FALSE;
 
 		$ga = new SimpleAuthenticator();
 		$cond = new stdClass();
-		$cond->srl=$member_srl;
-		$cond->otp_id = $ga->createSecret();
+		$cond->srl = $member_srl;
+		$cond->otp_id = $otp_id;
 		$cond->use = "N";
 		$output = executeQuery('googleotp.insertGoogleotpuserconfig', $cond);
 		return $output->toBool();
@@ -123,6 +128,12 @@ class googleotpModel extends googleotp
 		{
 			return FALSE;
 		}
+	}
+
+	function checkGAOTPNumber($otp_id, $number)
+	{
+		$ga = new SimpleAuthenticator();
+		return $ga->verifyCode($otp_id, $number, 2);
 	}
 
 	function getUserConfig($member_srl)
