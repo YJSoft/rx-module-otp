@@ -187,7 +187,7 @@ class googleotpController extends googleotp
 			}
 		} elseif($config->force_use_otp === "Y") {
 			$allowedact = array("dispGoogleotpUserConfig","procGoogleotpUserConfig","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage","getMember_divideList");
-			if(!in_array($obj->act, $allowedact) && $userconfig->use !== "Y")
+			if(!in_array($obj->act, $allowedact) && (!$oGoogleOTPModel->checkUserConfig(Context::get('logged_info')->member_srl) || $userconfig->use !== "Y"))
 			{
 				$_SESSION['beforeaddress'] = getNotEncodedUrl();
 				header("Location: " . getNotEncodedUrl('act','dispGoogleotpUserConfig'));
