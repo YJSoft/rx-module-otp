@@ -107,4 +107,4 @@ $('#auth_sms').click(function(){
     $('#sms_auth_help-block').show();
 });
 </script>
-<include target="../../../member/skins/default/common_footer.html" cond="!$force_config" />
+<include target="../../../member/skins/default/common_footer.html" cond="!$force_use_otp || ($force_use_otp && $user_config->use == 'Y')" />
