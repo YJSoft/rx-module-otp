@@ -17,7 +17,6 @@ class googleotpModel extends googleotp
 	{
 		if($this->checkUserConfig($member_srl)) return FALSE;
 
-		$ga = new SimpleAuthenticator();
 		$cond = new stdClass();
 		$cond->srl = $member_srl;
 		$cond->otp_id = $otp_id;
@@ -45,6 +44,7 @@ class googleotpModel extends googleotp
 		$cond->srl = $member_srl;
 		$output = executeQuery('googleotp.getGoogleotpuserconfigbySrl', $cond);
 		if(!isset($output->data->otp_id)) return FALSE;
+		if(!$output->data->otp_id) $this->generateNewOTP($member_srl);
 		else return TRUE;
 	}
 	
@@ -69,17 +69,11 @@ class googleotpModel extends googleotp
 
 	function generateNewOTP($member_srl)
 	{
-		if(!$this->checkUserConfig($member_srl)) {
-			return FALSE;
-		} else {
-			$ga = new SimpleAuthenticator();
-
-			$cond = new stdClass();
-			$cond->srl=$member_srl;
-			$cond->otp_id = $ga->createSecret();
-			$output = executeQuery('googleotp.updateGoogleotpkeybySrl', $cond);
-			return $output->toBool();
-		}
+		$cond = new stdClass();
+		$cond->srl = $member_srl;
+		$cond->otp_id = $this->createGASecret();
+		$output = executeQuery('googleotp.updateGoogleotpkeybySrl', $cond);
+		return $output->toBool();
 	}
 
 	function checkOTPNumber($member_srl,$number)

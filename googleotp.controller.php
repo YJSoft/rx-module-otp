@@ -9,12 +9,13 @@ class googleotpController extends googleotp
 	{
 		$oGoogleOTPModel = getModel('googleotp');
 		if(!Context::get("is_logged")) return $this->createObject(-1, "로그인해주세요");
+		$member_srl = Context::get('logged_info')->member_srl;
 
-		if(!$oGoogleOTPModel->checkUserConfig(Context::get('logged_info')->member_srl)) {
+		if(!$oGoogleOTPModel->checkUserConfig($member_srl)) {
 			$otp_id = $oGoogleOTPModel->createGASecret();
-			$oGoogleOTPModel->insertNewConfig(Context::get('logged_info')->member_srl, $otp_id);
+			$oGoogleOTPModel->insertNewConfig($member_srl, $otp_id);
 		} else {
-			$user_config = $oGoogleOTPModel->getUserConfig(Context::get('logged_info')->member_srl);
+			$user_config = $oGoogleOTPModel->getUserConfig($member_srl);
 			$otp_id = $user_config->otp_id;
 		}
 		$test_auth_key = Context::get("test_auth_key");
@@ -22,7 +23,7 @@ class googleotpController extends googleotp
 	    $test_auth_key = implode("", $test_auth_key);
 
 		$cond = new stdClass();
-		$cond->srl = Context::get('logged_info')->member_srl;
+		$cond->srl = $member_srl;
 		$cond->use = Context::get("use") === "Y" ? "Y" : "N";
 		$cond->issue_type = Context::get("issue_type") ?: 'none';
 
