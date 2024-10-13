@@ -38,7 +38,7 @@ class googleotpView extends googleotp
 		$domain = parse_url(getFullUrl());
 
 		if(!$oGoogleOTPModel->checkUserConfig($member_srl)) {
-			$oGoogleOTPModel->insertNewConfig($member_srll, $oGoogleOTPModel->createGASecret());
+			$oGoogleOTPModel->insertNewConfig($member_srl, $oGoogleOTPModel->createGASecret());
 		}
 
 		$config = $this->getConfig();
