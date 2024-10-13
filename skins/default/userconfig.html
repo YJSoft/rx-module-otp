@@ -20,7 +20,7 @@
                         <input type="radio" name="use" id="use_tfa" value="Y" checked="checked"|cond="$user_config->use == 'Y' || $force_use_otp" /> 사용함
                     </label>
                     <label class="inline">
-                        <input type="radio" name="use" id="no_use_tfa" value="N" checked="checked"|cond="$user_config->use != 'Y'" disabled="disabled"|cond="$force_use_otp" /> 사용하지 않음
+                        <input type="radio" name="use" id="no_use_tfa" value="N" checked="checked"|cond="$user_config->use != 'Y' && !$force_use_otp" disabled="disabled"|cond="$force_use_otp" /> 사용하지 않음
                     </label>
                     <p class="help-block" cond="$force_use_otp">사이트 정책으로 2차 인증 비활성화가 불가능합니다.</p>
                     <p class="help-block" cond="!$force_use_otp">로그인시에 2차 인증을 통해 보안을 강화합니다.</p>
