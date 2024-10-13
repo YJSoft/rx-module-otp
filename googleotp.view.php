@@ -41,8 +41,12 @@ class googleotpView extends googleotp
 		{
 			$oGoogleOTPModel->insertNewConfig($member_srl);
 		}
+
+		$config = $this->getConfig();
 		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
 		$userconfig->qrcode = $oGoogleOTPModel->generateQRCode($domain['host'], $logged_info->user_id, $userconfig->otp_id);
+
+		Context::set("force_use_otp", $config->force_use_otp === "Y");
 		Context::set("user_config", $userconfig);
 		Context::set("user_mail", $logged_info->email_address);
 		Context::set("user_phone", $logged_info->phone_number ?: '설정 안됨');

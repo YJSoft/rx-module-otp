@@ -7,9 +7,7 @@
 - Google OTP 대신 이메일로 OTP 대체할수 있도록
   - 이후 무조건 OTP를 사용하며 Google OTP 미사용시 이메일 OTP 강제사용 옵션 추가
 
-## Google OTP Library Copyright
-Copyright (c) 2012-2016, http://www.phpgangsta.de
-
-Author: Michael Kliewe, @PHPGangsta and contributors
-
-Licensed under the BSD License.
+## SimpleThenticator Copyright
+* Copyright (c) 2023, [https://poetter-sebastian.github.io](https://poetter-sebastian.github.io/)
+* Author: Sebastian Pötter, ([@PHPGangsta](https://github.com/PHPGangsta/GoogleAuthenticator), [contributors](https://github.com/PHPGangsta/GoogleAuthenticator/graphs/contributors)) and [contributors](https://github.com/poetter-sebastian/SimpleThenticator/graphs/contributors)
+* Licensed under the [BSD 2-Clause "Simplified" License](https://github.com/poetter-sebastian/SimpleThenticator/blob/main/LICENSE).

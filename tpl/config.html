@@ -64,10 +64,18 @@
 		<h1>보안 설정</h1>
 
 		<div class="x_control-group">
+			<label class="x_control-label">2차 인증 강제 활성화</label>
+			<div class="x_controls">
+				<label class="x_inline" for="force_use_otp"><input type="checkbox" name="force_use_otp" id="force_use_otp" value="Y" checked="checked"|cond="$googleotp_config->force_use_otp == 'Y'" /> 2차 인증 강제 활성화</label>
+				<p class="x_help-block">체크하면 로그인 후 2차 인증을 활성화하기 전까지 활동할 수 없게 만듭니다. <span style="color:red">주의: 유저가 사용할 수 있는 인증 수단이 없으면 로그인이 막힐 수 있습니다.</span></p>
+			</div>
+		</div>
+
+		<div class="x_control-group">
 			<label class="x_control-label">스팸 방지 기능</label>
 			<div class="x_controls">
 				<label class="x_inline" for="use_captcha"><input type="checkbox" name="use_captcha" id="use_captcha" value="Y" checked="checked"|cond="$googleotp_config->use_captcha == 'Y'" /> 캡챠 사용</label>
-				<p class="x_help-block"><a href="{getUrl('', 'module', 'admin', 'act', 'dispSpamfilterAdminConfigCaptcha')}" target="_blank">스팸필터 모듈에 설정한 캡챠 데이터</a>를 사용하여 OTP 인증시 캡챠를 사용합니다. 라이믹스 전용 기능입니다.</p>
+				<p class="x_help-block"><a href="{getUrl('', 'module', 'admin', 'act', 'dispSpamfilterAdminConfigCaptcha')}" target="_blank">스팸필터 모듈에 설정한 캡챠 데이터</a>를 사용하여 OTP 인증시 캡챠를 사용합니다.</p>
 			</div>
 		</div>
 	</section>

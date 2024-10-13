@@ -47,12 +47,13 @@ class googleotp extends ModuleObject
 			$oModuleModel = getModel('module');
 			self::$_config_cache = $oModuleModel->getModuleConfig($this->module) ?: new stdClass;
 
-			if(!isset(self::$_config_cache->allow_issue_type)) self::$_config_cache->allow_issue_type = ['otp'];
+			if(!isset(self::$_config_cache->allow_issue_type)) self::$_config_cache->allow_issue_type = ['otp','email'];
 			if(!isset(self::$_config_cache->auth_retry_hour)) self::$_config_cache->auth_retry_hour = 3;
 			if(!isset(self::$_config_cache->auth_retry_limit)) self::$_config_cache->auth_retry_limit = 10;
 			if(!isset(self::$_config_cache->use_captcha)) self::$_config_cache->use_captcha = 'N';
 			if(!isset(self::$_config_cache->auth_key_vaild_hour)) self::$_config_cache->auth_key_vaild_hour = 3;
 			if(!isset(self::$_config_cache->multiple_auth_key_process)) self::$_config_cache->multiple_auth_key_process = 0;
+			if(!isset(self::$_config_cache->force_use_otp)) self::$_config_cache->force_use_otp = 'N';
 		}
 		return self::$_config_cache;
 	}
