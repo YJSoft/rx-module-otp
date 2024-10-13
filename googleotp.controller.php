@@ -136,7 +136,7 @@ class googleotpController extends googleotp
 				return $this->createObject(-1, "인증 메일을 재발송할 수 없습니다.\n\n관리자에게 문의하세요.");
 			}
 		}
-		else if($userconfig->issue_type == 'sms')
+		elseif($userconfig->issue_type == 'sms')
 		{
 			if($oGoogleOTPModel->AvailableToSendSMS($member_srl)) // 인증 SMS를 보낼 수 있을 경우
 			{
@@ -176,7 +176,7 @@ class googleotpController extends googleotp
 		$oGoogleOTPModel = getModel('googleotp');
 		$userconfig = $oGoogleOTPModel->getUserConfig(Context::get('logged_info')->member_srl);
 		if($userconfig->use === "Y") {
-			$allowedact = array("dispGoogleotpInputotp","procGoogleotpInputotp","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage");
+			$allowedact = array("dispGoogleotpInputotp","procGoogleotpInputotp","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage","getMember_divideList");
 			if(!in_array($obj->act, $allowedact) && !$_SESSION['googleotp_passed'])
 			{
 				$_SESSION['beforeaddress'] = getNotEncodedUrl();
@@ -184,10 +184,8 @@ class googleotpController extends googleotp
 				Context::close();
 				die();
 			}
-		}
-		else if($config->force_use_otp === "Y")
-		{
-			$allowedact = array("dispGoogleotpUserConfig","procGoogleotpUserConfig","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage");
+		} elseif($config->force_use_otp === "Y") {
+			$allowedact = array("dispGoogleotpUserConfig","procGoogleotpUserConfig","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage","getMember_divideList");
 			if(!in_array($obj->act, $allowedact) && $userconfig->use !== "Y")
 			{
 				$_SESSION['beforeaddress'] = getNotEncodedUrl();
