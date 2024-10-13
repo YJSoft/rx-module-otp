@@ -196,4 +196,11 @@ class googleotpController extends googleotp
 			}
 		}
 	}
+
+	function triggerAutoLoginBypass($obj) {
+		$config = $this->getConfig();
+		if($config->bypass_auto_login === "Y") {
+			$_SESSION['googleotp_passed'] = TRUE;
+		}
+	}
 }

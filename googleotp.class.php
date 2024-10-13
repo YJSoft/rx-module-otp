@@ -8,6 +8,7 @@ class googleotp extends ModuleObject
 	protected static $_insert_triggers = array(
 		array('moduleHandler.init', 'before', 'controller', 'triggerHijackLogin'),
 		array('moduleHandler.init', 'after', 'controller', 'triggerAddMemberMenu'),
+		array('member.doAutoLogin', 'after', 'controller', 'triggerAutoLoginBypass')
 	);
 
 	/**
@@ -54,6 +55,7 @@ class googleotp extends ModuleObject
 			if(!isset(self::$_config_cache->auth_key_vaild_hour)) self::$_config_cache->auth_key_vaild_hour = 3;
 			if(!isset(self::$_config_cache->multiple_auth_key_process)) self::$_config_cache->multiple_auth_key_process = 0;
 			if(!isset(self::$_config_cache->force_use_otp)) self::$_config_cache->force_use_otp = 'N';
+			if(!isset(self::$_config_cache->bypass_auto_login)) self::$_config_cache->bypass_auto_login = 'N';
 		}
 		return self::$_config_cache;
 	}

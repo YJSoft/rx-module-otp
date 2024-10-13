@@ -21,6 +21,7 @@ class googleotpAdminController extends googleotp
 		$config->auth_key_vaild_hour = $vars->auth_key_vaild_hour;
 		$config->multiple_auth_key_process = $vars->multiple_auth_key_process;
 		$config->force_use_otp = $vars->force_use_otp ? 'Y' : 'N';
+		$config->bypass_auto_login = $vars->bypass_auto_login ? 'Y' : 'N';
 		
 		$output = $this->setConfig($config);
 		if (!$output->toBool())
