@@ -38,16 +38,12 @@ class googleotpView extends googleotp
 		$domain = parse_url(getFullUrl());
 
 		if(!$oGoogleOTPModel->checkUserConfig($member_srl)) {
-			$otp_id = $oGoogleOTPModel->createGASecret();
-			$oGoogleOTPModel->insertNewConfig($member_srll, $otp_id);
-		} else {
-			$user_config = $oGoogleOTPModel->getUserConfig($member_srl);
-			$otp_id = $user_config->otp_id;
+			$oGoogleOTPModel->insertNewConfig($member_srll, $oGoogleOTPModel->createGASecret());
 		}
 
 		$config = $this->getConfig();
 		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
-		$userconfig->qrcode = $oGoogleOTPModel->generateQRCode($domain['host'], $logged_info->user_id, $otp_id);
+		$userconfig->qrcode = $oGoogleOTPModel->generateQRCode($domain['host'], $logged_info->user_id, $userconfig->otp_id);
 
 		Context::set("force_use_otp", $config->force_use_otp === "Y");
 		Context::set("user_config", $userconfig);
