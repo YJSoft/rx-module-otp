@@ -45,7 +45,7 @@ class googleotpModel extends googleotp
 		$output = executeQuery('googleotp.getGoogleotpuserconfigbySrl', $cond);
 		if(!isset($output->data->otp_id)) return FALSE;
 		if(!$output->data->otp_id) $this->generateNewOTP($member_srl);
-		else return TRUE;
+		return TRUE;
 	}
 	
 	function checkUsedNumber($member_srl,$number) {
