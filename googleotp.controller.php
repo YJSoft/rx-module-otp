@@ -121,7 +121,6 @@ class googleotpController extends googleotp
 		if($_SESSION['googleotp_passed']) return $this->createObject(-1,"이미 인증했습니다.");
 
 		$member_srl = Context::get('member_srl');
-		$config = $this->getConfig();
 		$oGoogleOTPModel = getModel('googleotp');
 		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
 
@@ -174,6 +173,7 @@ class googleotpController extends googleotp
 			return;
 		}
 
+		$config = $this->getConfig();
 		$oGoogleOTPModel = getModel('googleotp');
 		$userconfig = $oGoogleOTPModel->getUserConfig(Context::get('logged_info')->member_srl);
 		if($userconfig->use === "Y") {
