@@ -194,4 +194,5 @@ class googleotpController extends googleotp
 				die();
 			}
 		}
+	}
 }
