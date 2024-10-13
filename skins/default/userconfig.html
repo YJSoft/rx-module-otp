@@ -1,9 +1,12 @@
 <load target="../../../member/skins/default/css/member.css" />
 <load target="css/default.css" />
-<include target="../../../member/skins/default/common_header.html" cond="!$force_use_otp || ($force_use_otp && $user_config->use == 'Y')" />
+<include target="../../../member/skins/default/common_header.html" cond="!$force_use_otp || ($force_use_otp && $user_config->use === 'Y')" />
 <div class="xm">
     <div cond="$XE_VALIDATOR_MESSAGE && $XE_VALIDATOR_ID == 'modules/googleotp/tpl/otp/otpconfig/1'" class="message {$XE_VALIDATOR_MESSAGE_TYPE}">
         <p>{$XE_VALIDATOR_MESSAGE}</p>
+    </div>
+    <div class="message error" cond="$force_use_otp && $user_config->use !== 'Y'">
+        <p>사이트 정책으로 활동하시기 전 반드시 2차 인증을 사용 설정하셔야 합니다.</p>
     </div>
     <form action="./" method="post" class="form-horizontal" id="fo_otpconfig">
         <input type="hidden" name="module" value="googleotp" />
