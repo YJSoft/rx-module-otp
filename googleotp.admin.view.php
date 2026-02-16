@@ -2,7 +2,7 @@
 
 /**
  * @class googleotpAdminView
- * @author Lastorder-DC
+ * @author YJSoft
  * @brief Google OTP 2차 인증 모듈의 관리자 뷰 클래스
  */
 class googleotpAdminView extends googleotp

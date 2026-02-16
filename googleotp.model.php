@@ -2,7 +2,7 @@
 
 /**
  * @class googleotpModel
- * @author Lastorder-DC
+ * @author YJSoft
  * @brief Google OTP 2차 인증 모듈의 모델 클래스
  */
 require_once(_XE_PATH_.'modules/googleotp/libs/SimpleAuthenticator.php');

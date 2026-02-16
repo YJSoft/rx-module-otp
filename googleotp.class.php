@@ -2,7 +2,7 @@
 
 /**
  * @class googleotp
- * @author Lastorder-DC
+ * @author YJSoft
  * @brief Google OTP 2차 인증 모듈의 기본 클래스
  */
 class googleotp extends ModuleObject
