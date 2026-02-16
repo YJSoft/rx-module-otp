@@ -15,8 +15,44 @@
         <p><!--@for($i=0;$i<strlen($logged_info->phone_number)-4;$i++)-->*<!--@end-->{substr($logged_info->phone_number,-4)}로 인증 문자가 발송되었습니다</p>
         <p>문자 메세지를 확인해주세요</p>
     </div>
+    <!--@elseif($user_config->issue_type == 'passkey')-->
+    <div class="message info">
+        <p>패스키 인증을 진행해주세요.</p>
+        <p>아래 버튼을 눌러 지문, 얼굴 인식 또는 보안 키로 인증해주세요.</p>
+    </div>
     <!--@endif-->
 
+    <!--@if($user_config->issue_type == 'passkey')-->
+    <div id="passkey_auth_section">
+        <section class="section">
+            <h1>로그인 2차 인증 (패스키)</h1>
+            <div class="control-group">
+                <div class="controls" style="text-align:center; padding:20px;">
+                    <button type="button" class="btn btn-primary btn-large" id="btn_passkey_auth" onclick="authenticatePasskey()" style="font-size:16px; padding:10px 30px;">
+                        패스키로 인증하기
+                    </button>
+                    <p class="help-block" id="passkey_auth_status" style="margin-top:10px;"></p>
+                </div>
+            </div>
+            <!--@if($googleotp_config->use_trusted_device == 'Y')-->
+            <div class="control-group">
+                <label class="control-label">이 기기 신뢰하기</label>
+                <div class="controls">
+                    <label class="inline">
+                        <input type="checkbox" name="trust_device_passkey" id="trust_device_passkey" value="Y" /> {$googleotp_config->trusted_device_duration}일 동안 이 기기에서 2차 인증 생략
+                    </label>
+                    <p class="help-block">공용 PC에서는 체크하지 마세요.</p>
+                </div>
+            </div>
+            <!--@endif-->
+        </section>
+        <div class="clearfix btnArea">
+            <div class="pull-right">
+                <button class="btn btn-secondary" type="button" onclick="location.href='{getUrl('','act','dispMemberLogout')}'">로그아웃</button>
+            </div>
+        </div>
+    </div>
+    <!--@else-->
     <form action="./" method="post" class="form-horizontal" id="fo_otplogin">
         <input type="hidden" name="module" value="googleotp" />
         <input type="hidden" name="act" value="procGoogleotpInputotp" />
@@ -71,8 +107,11 @@
             </div>
         </div>
     </form>
+    <!--@endif-->
 </div>
+<load target="../../vendor/davidearl/webauthn/src/webauthnauthenticate.js" />
 <script>
+    <!--@if($user_config->issue_type != 'passkey')-->
     var timerId;
     var resend_time = 90;
     jQuery(document).ready(function(){
@@ -106,5 +145,62 @@
 
         jQuery('#reauth_send').attr('onclick','return false;');
     }
+    <!--@endif-->
+
+    <!--@if($user_config->issue_type == 'passkey')-->
+    function authenticatePasskey(){
+        if(!window.PublicKeyCredential){
+            document.getElementById('passkey_auth_status').textContent = '이 브라우저는 패스키를 지원하지 않습니다.';
+            document.getElementById('passkey_auth_status').style.color = 'red';
+            return;
+        }
+        var statusEl = document.getElementById('passkey_auth_status');
+        statusEl.textContent = '패스키 인증 준비 중...';
+        statusEl.style.color = '';
+        document.getElementById('btn_passkey_auth').disabled = true;
+
+        exec_json("googleotp.procGoogleotpPasskeyLoginChallenge", {}, function(data){
+            if(data.error != 0){
+                statusEl.textContent = data.message;
+                statusEl.style.color = 'red';
+                document.getElementById('btn_passkey_auth').disabled = false;
+                return;
+            }
+            statusEl.textContent = '보안 키를 터치하거나 생체 인증을 진행해주세요...';
+            webauthnAuthenticate(data.challenge, function(success, info){
+                if(success){
+                    var trust_device = 'N';
+                    var trustCheckbox = document.getElementById('trust_device_passkey');
+                    if(trustCheckbox && trustCheckbox.checked) trust_device = 'Y';
+
+                    exec_json("googleotp.procGoogleotpPasskeyAuthenticate", {passkey_info: info, trust_device: trust_device}, function(authData){
+                        if(authData.error != 0){
+                            statusEl.textContent = authData.message;
+                            statusEl.style.color = 'red';
+                            document.getElementById('btn_passkey_auth').disabled = false;
+                        } else {
+                            statusEl.textContent = '인증 성공! 리다이렉트 중...';
+                            statusEl.style.color = 'green';
+                            location.href = authData.redirect_url || '/';
+                        }
+                    });
+                } else {
+                    if(info === 'abort'){
+                        statusEl.textContent = '패스키 인증이 취소되었습니다.';
+                        statusEl.style.color = '#888';
+                    } else {
+                        statusEl.textContent = '패스키 인증 오류: ' + info;
+                        statusEl.style.color = 'red';
+                    }
+                    document.getElementById('btn_passkey_auth').disabled = false;
+                }
+            });
+        });
+    }
+
+    jQuery(document).ready(function(){
+        authenticatePasskey();
+    });
+    <!--@endif-->
 </script>
 <include target="../../../member/skins/default/common_footer.html" />

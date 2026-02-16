@@ -1,0 +1,6 @@
+*~
+Thumbs.db
+*.unused
+\#*\#
+
+/vendor/

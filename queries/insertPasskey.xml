@@ -1,0 +1,12 @@
+<query id="insertPasskey" action="insert">
+    <tables>
+        <table name="googleotp_passkey" />
+    </tables>
+    <columns>
+        <column name="member_srl" var="member_srl" notnull="notnull" />
+        <column name="credential_id" var="credential_id" notnull="notnull" />
+        <column name="webauthn_data" var="webauthn_data" notnull="notnull" />
+        <column name="key_name" var="key_name" />
+        <column name="created_at" var="created_at" notnull="notnull" />
+    </columns>
+</query>

@@ -39,6 +39,9 @@
 					<option value="sms" selected="selected"|cond="$user_config->issue_type == 'sms'"  disabled="disabled"|cond="!in_array('sms', $googleotp_config->allow_issue_type)">
 						문자 (SMS) <!--@if(!in_array('sms', $googleotp_config->allow_issue_type))-->(비활성화됨)<!--@endif-->
 					</option>
+					<option value="passkey" selected="selected"|cond="$user_config->issue_type == 'passkey'" disabled="disabled"|cond="!in_array('passkey', $googleotp_config->allow_issue_type)">
+						패스키 (Passkey) <!--@if(!in_array('passkey', $googleotp_config->allow_issue_type))-->(비활성화됨)<!--@endif-->
+					</option>
 				</select>
 			</div>
 		</div>

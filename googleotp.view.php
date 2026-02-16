@@ -64,11 +64,17 @@ class googleotpView extends googleotp
 		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
 		$userconfig->qrcode = $oGoogleOTPModel->generateQRCode($domain['host'], $logged_info->user_id, $userconfig->otp_id);
 
+		Context::set("member_srl", $member_srl);
 		Context::set("force_use_otp", $config->force_use_otp === "Y");
 		Context::set("user_config", $userconfig);
 		Context::set("user_mail", $logged_info->email_address);
 		Context::set("user_phone", $logged_info->phone_number ?: '설정 안됨');
 		Context::set("googleotp_config", $this->getConfig());
+
+		// 패스키 관련 데이터
+		$passkey_list = $oGoogleOTPModel->getPasskeyList($member_srl);
+		Context::set("passkey_list", $passkey_list);
+		Context::set("has_passkey", !empty($passkey_list));
 	}
 
 	/**
@@ -134,6 +140,13 @@ class googleotpView extends googleotp
 		Context::set("logged_info", $logged_info);
 		Context::set("user_config", $userconfig);
 		Context::set("googleotp_config", $config);
+
+		// 패스키 인증용 데이터 준비
+		if($userconfig->issue_type == 'passkey')
+		{
+			$has_passkey = $oGoogleOTPModel->hasPasskey($member_srl);
+			Context::set("has_passkey", $has_passkey);
+		}
 	}
 
 	/**

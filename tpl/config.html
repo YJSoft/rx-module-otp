@@ -24,6 +24,9 @@
 				<label class="inline">
 					<input type="checkbox" name="allow_issue_type[]" id="auth_sms" value="sms" checked="checked"|cond="in_array('sms', $googleotp_config->allow_issue_type)" /> SMS 인증
 				</label>
+				<label class="inline">
+					<input type="checkbox" name="allow_issue_type[]" id="auth_passkey" value="passkey" checked="checked"|cond="in_array('passkey', $googleotp_config->allow_issue_type)" /> 패스키 (Passkey)
+				</label>
 				<p class="x_help-block">허용할 인증수단을 선택해주세요.</p>
 			</div>
 		</div>
