@@ -5,24 +5,24 @@
         <p>{$XE_VALIDATOR_MESSAGE}</p>
     </div>
 
-    <!--@if($user_config->issue_type == 'email')-->
+    <!--@if($active_issue_type == 'email')-->
     <div class="message info">
         <p>{substr($logged_info->email_id,0,5)}*******@{$logged_info->email_host} 으로 인증 메일이 발송되었습니다</p>
         <p>메일함을 확인해주세요</p>
     </div>
-    <!--@elseif($user_config->issue_type == 'sms')-->
+    <!--@elseif($active_issue_type == 'sms')-->
     <div class="message info">
         <p><!--@for($i=0;$i<strlen($logged_info->phone_number)-4;$i++)-->*<!--@end-->{substr($logged_info->phone_number,-4)}로 인증 문자가 발송되었습니다</p>
         <p>문자 메세지를 확인해주세요</p>
     </div>
-    <!--@elseif($user_config->issue_type == 'passkey')-->
+    <!--@elseif($active_issue_type == 'passkey')-->
     <div class="message info">
         <p>패스키 인증을 진행해주세요.</p>
         <p>아래 버튼을 눌러 지문, 얼굴 인식 또는 보안 키로 인증해주세요.</p>
     </div>
     <!--@endif-->
 
-    <!--@if($user_config->issue_type == 'passkey')-->
+    <!--@if($active_issue_type == 'passkey')-->
     <div id="passkey_auth_section">
         <section class="section">
             <h1>로그인 2차 인증 (패스키)</h1>
@@ -46,6 +46,32 @@
             </div>
             <!--@endif-->
         </section>
+        <!--@if($alternative_types && count($alternative_types) > 0)-->
+        <section class="section">
+            <h1>다른 인증 방식 사용</h1>
+            <div class="control-group">
+                <div class="controls">
+                    <p class="help-block">선택한 인증 방식을 사용할 수 없는 경우, 다른 방식으로 전환할 수 있습니다.</p>
+                    <!--@foreach($alternative_types as $alt_type)-->
+                    <form action="./" method="post" style="display:inline; margin-right:5px;">
+                        <input type="hidden" name="module" value="googleotp" />
+                        <input type="hidden" name="act" value="procGoogleotpSwitchAuthMethod" />
+                        <input type="hidden" name="switch_to" value="{$alt_type}" />
+                        <!--@if($alt_type == 'otp')-->
+                        <button type="submit" class="btn">Google OTP로 전환</button>
+                        <!--@elseif($alt_type == 'email')-->
+                        <button type="submit" class="btn">이메일 인증으로 전환</button>
+                        <!--@elseif($alt_type == 'sms')-->
+                        <button type="submit" class="btn">SMS 인증으로 전환</button>
+                        <!--@elseif($alt_type == 'passkey')-->
+                        <button type="submit" class="btn">패스키로 전환</button>
+                        <!--@endif-->
+                    </form>
+                    <!--@end-->
+                </div>
+            </div>
+        </section>
+        <!--@endif-->
         <div class="clearfix btnArea">
             <div class="pull-right">
                 <button class="btn btn-secondary" type="button" onclick="location.href='{getUrl('','act','dispMemberLogout')}'">로그아웃</button>
@@ -65,19 +91,19 @@
                 <label class="control-label">인증 번호 입력</label>
                 <div class="controls">
                     <input type="text" name="otpinput" required />
-                    <!--@if($user_config->issue_type == 'otp')-->
+                    <!--@if($active_issue_type == 'otp')-->
                     <p class="help-block">Google OTP 앱에 뜬 번호를 입력해주세요.</p>
-                    <!--@elseif($user_config->issue_type == 'email')-->
+                    <!--@elseif($active_issue_type == 'email')-->
                     <p class="help-block">이메일로 발송된 인증 번호를 입력해주세요.</p>
-                    <!--@elseif($user_config->issue_type == 'sms')-->
+                    <!--@elseif($active_issue_type == 'sms')-->
                     <p class="help-block">문자로 발송된 인증 번호를 입력해주세요.</p>
                     <!--@endif-->
                 </div>
             </div>
-            <div class="control-group" cond="in_array($user_config->issue_type, ['email','sms'])">
-                <label class="control-label">인증 <!--@if($user_config->issue_type == 'email')-->메일<!--@elseif($user_config->issue_type == 'sms')-->문자<!--@endif--> 재전송</label>
+            <div class="control-group" cond="in_array($active_issue_type, ['email','sms'])">
+                <label class="control-label">인증 <!--@if($active_issue_type == 'email')-->메일<!--@elseif($active_issue_type == 'sms')-->문자<!--@endif--> 재전송</label>
                 <div class="controls">
-                    <input type="button" id="reauth_send" class="btn" onclick="return false;" value="인증 <!--@if($user_config->issue_type == 'email')-->메일<!--@elseif($user_config->issue_type == 'sms')-->문자<!--@endif--> 재전송 (01:30)">
+                    <input type="button" id="reauth_send" class="btn" onclick="return false;" value="인증 <!--@if($active_issue_type == 'email')-->메일<!--@elseif($active_issue_type == 'sms')-->문자<!--@endif--> 재전송 (01:30)">
                 </div>
             </div>
             <!--@if($captcha)-->
@@ -107,11 +133,37 @@
             </div>
         </div>
     </form>
+    <!--@if($alternative_types && count($alternative_types) > 0)-->
+    <section class="section">
+        <h1>다른 인증 방식 사용</h1>
+        <div class="control-group">
+            <div class="controls">
+                <p class="help-block">선택한 인증 방식을 사용할 수 없는 경우, 다른 방식으로 전환할 수 있습니다.</p>
+                <!--@foreach($alternative_types as $alt_type)-->
+                <form action="./" method="post" style="display:inline; margin-right:5px;">
+                    <input type="hidden" name="module" value="googleotp" />
+                    <input type="hidden" name="act" value="procGoogleotpSwitchAuthMethod" />
+                    <input type="hidden" name="switch_to" value="{$alt_type}" />
+                    <!--@if($alt_type == 'otp')-->
+                    <button type="submit" class="btn">Google OTP로 전환</button>
+                    <!--@elseif($alt_type == 'email')-->
+                    <button type="submit" class="btn">이메일 인증으로 전환</button>
+                    <!--@elseif($alt_type == 'sms')-->
+                    <button type="submit" class="btn">SMS 인증으로 전환</button>
+                    <!--@elseif($alt_type == 'passkey')-->
+                    <button type="submit" class="btn">패스키로 전환</button>
+                    <!--@endif-->
+                </form>
+                <!--@end-->
+            </div>
+        </div>
+    </section>
+    <!--@endif-->
     <!--@endif-->
 </div>
 <load target="../../vendor/davidearl/webauthn/src/webauthnauthenticate.js" />
 <script>
-    <!--@if($user_config->issue_type != 'passkey')-->
+    <!--@if($active_issue_type != 'passkey')-->
     var timerId;
     var resend_time = 90;
     jQuery(document).ready(function(){
@@ -123,11 +175,11 @@
         if(resend_time <= 0)
         {
             clearInterval(timerId);
-            jQuery('#reauth_send').attr('onclick','return reSendAuth();').val('인증 <!--@if($user_config->issue_type == "email")-->메일<!--@elseif($user_config->issue_type == "sms")-->문자<!--@endif--> 재전송');
+            jQuery('#reauth_send').attr('onclick','return reSendAuth();').val('인증 <!--@if($active_issue_type == "email")-->메일<!--@elseif($active_issue_type == "sms")-->문자<!--@endif--> 재전송');
         }
         else
         {
-            jQuery('#reauth_send').attr('onclick','return false;').val('인증 <!--@if($user_config->issue_type == "email")-->메일<!--@elseif($user_config->issue_type == "sms")-->문자<!--@endif--> 재전송 ('+new Date(resend_time * 1000).toISOString().substr(14, 5)+')');
+            jQuery('#reauth_send').attr('onclick','return false;').val('인증 <!--@if($active_issue_type == "email")-->메일<!--@elseif($active_issue_type == "sms")-->문자<!--@endif--> 재전송 ('+new Date(resend_time * 1000).toISOString().substr(14, 5)+')');
         }
     }
     function reSendAuth()
@@ -139,7 +191,7 @@
             }
             else
             {
-                alert('인증 <!--@if($user_config->issue_type == "email")-->메일이<!--@elseif($user_config->issue_type == "sms")-->문자가<!--@endif--> 재발송되었습니다');
+                alert('인증 <!--@if($active_issue_type == "email")-->메일이<!--@elseif($active_issue_type == "sms")-->문자가<!--@endif--> 재발송되었습니다');
             }
         });
 
@@ -147,7 +199,7 @@
     }
     <!--@endif-->
 
-    <!--@if($user_config->issue_type == 'passkey')-->
+    <!--@if($active_issue_type == 'passkey')-->
     function authenticatePasskey(){
         if(!window.PublicKeyCredential){
             document.getElementById('passkey_auth_status').textContent = '이 브라우저는 패스키를 지원하지 않습니다.';

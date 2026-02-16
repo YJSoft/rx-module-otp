@@ -146,25 +146,31 @@ class googleotpModel extends googleotp
 	 *
 	 * @param int $member_srl 회원 번호
 	 * @param string $number 입력한 인증번호
+	 * @param string $active_issue_type 현재 사용 중인 인증 방식 (지정하지 않으면 기본 인증 방식 사용)
 	 * @return bool 인증 성공 여부
 	 */
-	function checkOTPNumber($member_srl,$number)
+	function checkOTPNumber($member_srl,$number,$active_issue_type=null)
 	{
 		$user_config = $this->getUserConfig($member_srl);
 		$config = $this->getConfig();
 
-		if($user_config->issue_type == 'otp')
+		if($active_issue_type === null)
+		{
+			$active_issue_type = $this->getDefaultIssueType($user_config);
+		}
+
+		if($active_issue_type == 'otp')
 		{
 			$ga = new SimpleAuthenticator();
 			return $ga->verifyCode($user_config->otp_id, $number, 2);
 		}
-		else if($user_config->issue_type == 'email' || $user_config->issue_type == 'sms')
+		else if($active_issue_type == 'email' || $active_issue_type == 'sms')
 		{
 			if($config->multiple_auth_key_process == 0) // 유효기간 내 전부 허용
 			{
 				$args = new stdClass();
 				$args->member_srl = $member_srl;
-				$args->issue_type = $user_config->issue_type;
+				$args->issue_type = $active_issue_type;
 				$args->time = time() - ($config->auth_key_vaild_hour * 3600);
 				$output = executeQueryArray('googleotp.getAuthSendLog', $args);
 				if(!$output->toBool()) return FALSE;
@@ -180,7 +186,7 @@ class googleotpModel extends googleotp
 			{
 				$args = new stdClass();
 				$args->member_srl = $member_srl;
-				$args->issue_type = $user_config->issue_type;
+				$args->issue_type = $active_issue_type;
 				$args->time = time() - ($config->auth_key_vaild_hour * 3600);
 				$output = executeQuery('googleotp.getLatestAuthSendLog', $args);
 				if(!$output->toBool()) return FALSE;
@@ -748,5 +754,69 @@ class googleotpModel extends googleotp
 	{
 		$data = $this->getPasskeyWebauthnData($member_srl);
 		return !empty($data);
+	}
+
+	/**
+	 * 사용자 설정에서 활성화된 인증 방식 목록을 배열로 반환하는 함수.
+	 *
+	 * @param object $user_config 사용자 OTP 설정 객체
+	 * @return array 활성화된 인증 방식 배열
+	 */
+	public function getIssueTypes($user_config)
+	{
+		if(!$user_config || empty($user_config->issue_type) || $user_config->issue_type === 'none')
+		{
+			return [];
+		}
+		return array_filter(explode(',', $user_config->issue_type), function($v) { return $v !== ''; });
+	}
+
+	/**
+	 * 사용자 설정에서 기본 인증 방식을 반환하는 함수.
+	 *
+	 * default_issue_type이 설정되어 있으면 해당 값을,
+	 * 아니면 issue_type 목록의 첫 번째를 반환한다.
+	 *
+	 * @param object $user_config 사용자 OTP 설정 객체
+	 * @return string 기본 인증 방식
+	 */
+	public function getDefaultIssueType($user_config)
+	{
+		if(!empty($user_config->default_issue_type) && $user_config->default_issue_type !== 'none')
+		{
+			return $user_config->default_issue_type;
+		}
+		$types = $this->getIssueTypes($user_config);
+		return !empty($types) ? $types[0] : 'none';
+	}
+
+	/**
+	 * 특정 인증 방식이 사용자에게 활성화되어 있는지 확인하는 함수.
+	 *
+	 * @param object $user_config 사용자 OTP 설정 객체
+	 * @param string $type 확인할 인증 방식
+	 * @return bool 활성화 여부
+	 */
+	public function hasIssueType($user_config, $type)
+	{
+		$types = $this->getIssueTypes($user_config);
+		return in_array($type, $types);
+	}
+
+	/**
+	 * 사용자가 사용할 수 있는 대체 인증 방식 목록을 반환하는 함수.
+	 *
+	 * 현재 사용 중인 방식을 제외한 나머지 활성화된 인증 방식을 반환한다.
+	 *
+	 * @param object $user_config 사용자 OTP 설정 객체
+	 * @param string $current_type 현재 사용 중인 인증 방식
+	 * @return array 대체 인증 방식 배열
+	 */
+	public function getAlternativeIssueTypes($user_config, $current_type)
+	{
+		$types = $this->getIssueTypes($user_config);
+		return array_values(array_filter($types, function($t) use ($current_type) {
+			return $t !== $current_type;
+		}));
 	}
 }

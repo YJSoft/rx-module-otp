@@ -106,7 +106,13 @@ class googleotpView extends googleotp
 		$oGoogleOTPModel = googleotpModel::getInstance();
 		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
 
-		if($userconfig->issue_type == 'email')
+		// 현재 활성화된 인증 방식 결정 (세션에서 선택한 방식 또는 기본 방식)
+		$active_issue_type = $_SESSION['googleotp_active_type'] ?? $oGoogleOTPModel->getDefaultIssueType($userconfig);
+
+		// 대체 인증 방식 목록
+		$alternative_types = $oGoogleOTPModel->getAlternativeIssueTypes($userconfig, $active_issue_type);
+
+		if($active_issue_type == 'email')
 		{
 			if($oGoogleOTPModel->AvailableToSendEmail($member_srl)) // 인증 메일을 보낼 수 있을 경우
 			{
@@ -114,7 +120,7 @@ class googleotpView extends googleotp
 				Context::set('email_sent', $result);
 			}
 		}
-		else if($userconfig->issue_type == 'sms')
+		else if($active_issue_type == 'sms')
 		{
 			if($oGoogleOTPModel->AvailableToSendSMS($member_srl)) // 인증 SMS를 보낼 수 있을 경우
 			{
@@ -140,9 +146,11 @@ class googleotpView extends googleotp
 		Context::set("logged_info", $logged_info);
 		Context::set("user_config", $userconfig);
 		Context::set("googleotp_config", $config);
+		Context::set("active_issue_type", $active_issue_type);
+		Context::set("alternative_types", $alternative_types);
 
 		// 패스키 인증용 데이터 준비
-		if($userconfig->issue_type == 'passkey')
+		if($active_issue_type == 'passkey')
 		{
 			$has_passkey = $oGoogleOTPModel->hasPasskey($member_srl);
 			Context::set("has_passkey", $has_passkey);
