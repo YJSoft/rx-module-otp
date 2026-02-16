@@ -21,7 +21,7 @@
 				<td>{$no}</td>
 				<td><a class="member_{$val->member_info->member_srl}" href="javascript:void(0);">{$val->member_info->nick_name}</a></td>
 				<td><!--@if($val->use == 'Y')--> 사용<!--@else-->사용 안 함<!--@end--></td>
-				<td><!--@if($val->issue_type == 'otp')-->Google OTP<!--@elseif($val->issue_type == 'email')-->이메일<!--@elseif($val->issue_type == 'sms')-->문자<!--@endif--></td>
+				<td><!--@if($val->issue_type == 'otp')-->Google OTP<!--@elseif($val->issue_type == 'email')-->이메일<!--@elseif($val->issue_type == 'sms')-->문자<!--@elseif($val->issue_type == 'passkey')-->패스키<!--@endif--></td>
 				<td><a href="{getUrl('', 'module', 'admin', 'act', 'dispGoogleotpAdminMemberSetup', 'srl', $val->srl, 'nick_name', $val->member_info->nick_name)}">수정</a></td>
 			</tr>
 			<!--@end-->
@@ -66,8 +66,4 @@
 			<li class="x_disabled"|cond="$page == $page_navigation->last_page"><a href="{getUrl('page', $page_navigation->last_page)}" title="{$page_navigation->last_page}">{$lang->last_page} &raquo;</a></li>
 		</ul>
 	</form>
-
-	<span class="x_pull-right x_btn-group">
-		<a class="x_btn x_btn-inverse" href="{getUrl('', 'module', 'admin', 'act', 'dispRaidtimeAdminInsertBoss')}">보스기록</a>
-	</span>
 </section>

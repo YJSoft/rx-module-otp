@@ -45,7 +45,7 @@ class googleotpController extends googleotp
 		$cond->use = Context::get("use") === "Y" ? "Y" : "N";
 		$cond->issue_type = Context::get("issue_type") ?: 'none';
 
-		if($cond->use == 'Y' && !in_array($cond->issue_type, array('otp', 'email', 'sms'))) {
+		if($cond->use == 'Y' && !in_array($cond->issue_type, array('otp', 'email', 'sms', 'passkey'))) {
 			return $this->createObject(-1, "2차 인증 방식을 선택해주세요.");
 		}
 
@@ -56,6 +56,12 @@ class googleotpController extends googleotp
 
 			if(!$oGoogleOTPModel->checkGAOTPNumber($otp_id, $test_auth_key)) {
 				return $this->createObject(-1, "확인용 인증코드가 잘못되었습니다.");
+			}
+		}
+
+		if($cond->use == 'Y' && $cond->issue_type == 'passkey') {
+			if(!$oGoogleOTPModel->hasPasskey($member_srl)) {
+				return $this->createObject(-1, "패스키를 먼저 등록해주세요.");
 			}
 		}
 
@@ -255,7 +261,7 @@ class googleotpController extends googleotp
 		}
 
 		if($userconfig->use === "Y") {
-			$allowedact = array("dispGoogleotpInputotp","procGoogleotpInputotp","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage","getMember_divideList");
+			$allowedact = array("dispGoogleotpInputotp","procGoogleotpInputotp","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage","getMember_divideList","procGoogleotpPasskeyLoginChallenge","procGoogleotpPasskeyAuthenticate");
 			if(!in_array($obj->act, $allowedact) && !$_SESSION['googleotp_passed'])
 			{
 				$_SESSION['beforeaddress'] = getNotEncodedUrl();
@@ -372,6 +378,170 @@ class googleotpController extends googleotp
 		else
 		{
 			$this->setRedirectUrl(getNotEncodedUrl('', 'act', 'dispGoogleotpTrustedDevices'));
+		}
+	}
+
+	/**
+	 * 패스키 등록 챌린지를 생성하는 함수.
+	 *
+	 * @return BaseObject
+	 */
+	function procGoogleotpPasskeyRegisterChallenge()
+	{
+		Context::setResponseMethod('JSON');
+		if(!Context::get("is_logged")) return $this->createObject(-1, "로그인해주세요");
+
+		$logged_info = Context::get('logged_info');
+		$member_srl = $logged_info->member_srl;
+
+		$oGoogleOTPModel = googleotpModel::getInstance();
+		$challenge = $oGoogleOTPModel->preparePasskeyRegistration($logged_info->nick_name, $member_srl);
+
+		$this->add('challenge', $challenge);
+		return $this->createObject(0, 'success');
+	}
+
+	/**
+	 * 패스키 등록을 처리하는 함수.
+	 *
+	 * @return BaseObject
+	 */
+	function procGoogleotpPasskeyRegister()
+	{
+		Context::setResponseMethod('JSON');
+		if(!Context::get("is_logged")) return $this->createObject(-1, "로그인해주세요");
+
+		$logged_info = Context::get('logged_info');
+		$member_srl = $logged_info->member_srl;
+		$info = Context::get('passkey_info');
+		$key_name = Context::get('key_name') ?: 'Passkey';
+
+		if(!$info) return $this->createObject(-1, "패스키 데이터가 없습니다.");
+
+		$oGoogleOTPModel = googleotpModel::getInstance();
+		$result = $oGoogleOTPModel->registerPasskey($member_srl, $info, $key_name);
+
+		if(!$result) return $this->createObject(-1, "패스키 등록에 실패했습니다.");
+
+		return $this->createObject(0, '패스키가 등록되었습니다.');
+	}
+
+	/**
+	 * 패스키 인증 챌린지를 생성하는 함수 (로그인 시).
+	 *
+	 * @return BaseObject
+	 */
+	function procGoogleotpPasskeyLoginChallenge()
+	{
+		Context::setResponseMethod('JSON');
+		if(!Context::get("is_logged")) return $this->createObject(-1, "로그인하지 않았습니다.");
+
+		$member_srl = Context::get('logged_info')->member_srl;
+
+		$oGoogleOTPModel = googleotpModel::getInstance();
+		$challenge = $oGoogleOTPModel->preparePasskeyLogin($member_srl);
+
+		if(!$challenge) return $this->createObject(-1, "등록된 패스키가 없습니다.");
+
+		$this->add('challenge', $challenge);
+		return $this->createObject(0, 'success');
+	}
+
+	/**
+	 * 패스키 인증을 수행하는 함수 (로그인 시).
+	 *
+	 * @return BaseObject|void
+	 */
+	function procGoogleotpPasskeyAuthenticate()
+	{
+		Context::setResponseMethod('JSON');
+		if(!Context::get("is_logged")) return $this->createObject(-1, "로그인하지 않았습니다.");
+		if($_SESSION['googleotp_passed']) return $this->createObject(-1, "이미 인증했습니다.");
+
+		$member_srl = Context::get('logged_info')->member_srl;
+		$info = Context::get('passkey_info');
+
+		if(!$info) return $this->createObject(-1, "패스키 데이터가 없습니다.");
+
+		$oGoogleOTPModel = googleotpModel::getInstance();
+		$config = $this->getConfig();
+
+		if($oGoogleOTPModel->authenticatePasskey($member_srl, $info))
+		{
+			$oGoogleOTPModel->insertAuthlog($member_srl, 'passkey', "Y", "passkey");
+			$_SESSION['googleotp_passed'] = TRUE;
+
+			// 신뢰할 수 있는 기기 등록 처리
+			$trust_device = Context::get("trust_device");
+			if($trust_device === 'Y' && $config->use_trusted_device === 'Y')
+			{
+				$trust_days = intval($config->trusted_device_duration) ?: 30;
+				$device_token = $oGoogleOTPModel->registerTrustedDevice($member_srl, $trust_days);
+				if($device_token)
+				{
+					$cookie_expire = time() + ($trust_days * 86400);
+					$is_https = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+					setcookie('googleotp_trusted_device', $device_token, [
+						'expires' => $cookie_expire,
+						'path' => '/',
+						'secure' => $is_https,
+						'httponly' => true,
+						'samesite' => 'Lax',
+					]);
+				}
+			}
+
+			$this->add('redirect_url', $_SESSION['beforeaddress'] ?: getNotEncodedUrl(''));
+			return $this->createObject(0, '패스키 인증에 성공했습니다.');
+		}
+		else
+		{
+			$oGoogleOTPModel->insertAuthlog($member_srl, 'passkey', "N", "passkey");
+			return $this->createObject(-1, "패스키 인증에 실패했습니다.");
+		}
+	}
+
+	/**
+	 * 패스키를 삭제하는 함수.
+	 *
+	 * @return BaseObject|void
+	 */
+	function procGoogleotpDeletePasskey()
+	{
+		if(!Context::get("is_logged")) return $this->createObject(-1, "로그인해주세요");
+
+		$logged_info = Context::get('logged_info');
+		$member_srl = $logged_info->member_srl;
+		$idx = intval(Context::get('passkey_idx'));
+
+		if(!$idx) return $this->createObject(-1, "잘못된 요청입니다.");
+
+		$oGoogleOTPModel = googleotpModel::getInstance();
+
+		// 2차 인증이 패스키 방식으로 활성화된 경우, 마지막 패스키는 삭제 불가
+		$user_config = $oGoogleOTPModel->getUserConfig($member_srl);
+		if($user_config && $user_config->use === 'Y' && $user_config->issue_type === 'passkey')
+		{
+			$passkey_list = $oGoogleOTPModel->getPasskeyList($member_srl);
+			if(count($passkey_list) <= 1)
+			{
+				return $this->createObject(-1, "패스키를 모두 삭제하려면 2차 인증을 비활성화하세요.");
+			}
+		}
+
+		if(!$oGoogleOTPModel->deletePasskey($idx, $member_srl))
+		{
+			return $this->createObject(-1, "패스키 삭제에 실패했습니다.");
+		}
+
+		$this->setMessage('success_deleted');
+		if(Context::get('success_return_url'))
+		{
+			$this->setRedirectUrl(Context::get('success_return_url'));
+		}
+		else
+		{
+			$this->setRedirectUrl(getNotEncodedUrl('', 'act', 'dispGoogleotpUserConfig'));
 		}
 	}
 }

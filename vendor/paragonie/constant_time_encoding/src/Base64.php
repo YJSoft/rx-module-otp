@@ -3,9 +3,7 @@ declare(strict_types=1);
 namespace ParagonIE\ConstantTime;
 
 use InvalidArgumentException;
-use Override;
 use RangeException;
-use SensitiveParameter;
 use SodiumException;
 use TypeError;
 use function extension_loaded;
@@ -62,17 +60,21 @@ abstract class Base64 implements EncoderInterface
      *
      * @throws TypeError
      */
-    #[Override]
     public static function encode(
-        #[SensitiveParameter]
         string $binString
     ): string {
         if (extension_loaded('sodium')) {
-            $variant = match(static::class) {
-                Base64::class => SODIUM_BASE64_VARIANT_ORIGINAL,
-                Base64UrlSafe::class => SODIUM_BASE64_VARIANT_URLSAFE,
-                default => 0,
-            };
+            switch (static::class) {
+                case Base64::class:
+                    $variant = SODIUM_BASE64_VARIANT_ORIGINAL;
+                    break;
+                case Base64UrlSafe::class:
+                    $variant = SODIUM_BASE64_VARIANT_URLSAFE;
+                    break;
+                default:
+                    $variant = 0;
+                    break;
+            }
             if ($variant > 0) {
                 try {
                     return sodium_bin2base64($binString, $variant);
@@ -96,15 +98,20 @@ abstract class Base64 implements EncoderInterface
      * @api
      */
     public static function encodeUnpadded(
-        #[SensitiveParameter]
         string $src
     ): string {
         if (extension_loaded('sodium')) {
-            $variant = match(static::class) {
-                Base64::class => SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING,
-                Base64UrlSafe::class => SODIUM_BASE64_VARIANT_URLSAFE_NO_PADDING,
-                default => 0,
-            };
+            switch (static::class) {
+                case Base64::class:
+                    $variant = SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING;
+                    break;
+                case Base64UrlSafe::class:
+                    $variant = SODIUM_BASE64_VARIANT_URLSAFE_NO_PADDING;
+                    break;
+                default:
+                    $variant = 0;
+                    break;
+            }
             if ($variant > 0) {
                 try {
                     return sodium_bin2base64($src, $variant);
@@ -124,7 +131,6 @@ abstract class Base64 implements EncoderInterface
      * @throws TypeError
      */
     protected static function doEncode(
-        #[SensitiveParameter]
         string $src,
         bool $pad = true
     ): string {
@@ -182,9 +188,7 @@ abstract class Base64 implements EncoderInterface
      * @throws RangeException
      * @throws TypeError
      */
-    #[Override]
     public static function decode(
-        #[SensitiveParameter]
         string $encodedString,
         bool $strictPadding = false
     ): string {
@@ -214,11 +218,17 @@ abstract class Base64 implements EncoderInterface
                 );
             }
             if (extension_loaded('sodium')) {
-                $variant = match(static::class) {
-                    Base64::class => SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING,
-                    Base64UrlSafe::class => SODIUM_BASE64_VARIANT_URLSAFE_NO_PADDING,
-                    default => 0,
-                };
+                switch (static::class) {
+                    case Base64::class:
+                        $variant = SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING;
+                        break;
+                    case Base64UrlSafe::class:
+                        $variant = SODIUM_BASE64_VARIANT_URLSAFE_NO_PADDING;
+                        break;
+                    default:
+                        $variant = 0;
+                        break;
+                }
                 if ($variant > 0) {
                     try {
                         return sodium_base642bin(substr($encodedString, 0, $srcLen), $variant);
@@ -299,7 +309,6 @@ abstract class Base64 implements EncoderInterface
      * @api
      */
     public static function decodeNoPadding(
-        #[SensitiveParameter]
         string $encodedString
     ): string {
         $srcLen = strlen($encodedString);

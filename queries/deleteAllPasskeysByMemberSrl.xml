@@ -1,0 +1,8 @@
+<query id="deleteAllPasskeysByMemberSrl" action="delete">
+    <tables>
+        <table name="googleotp_passkey" />
+    </tables>
+    <conditions>
+        <condition operation="equal" column="member_srl" var="member_srl" notnull="notnull" />
+    </conditions>
+</query>

@@ -2,7 +2,6 @@
 declare(strict_types=1);
 namespace ParagonIE\ConstantTime;
 
-use SensitiveParameter;
 use TypeError;
 use function strlen;
 use function substr;
@@ -49,7 +48,6 @@ abstract class Binary
      * @return int
      */
     public static function safeStrlen(
-        #[SensitiveParameter]
         string $str
     ): int {
         return strlen($str);
@@ -69,7 +67,6 @@ abstract class Binary
      * @throws TypeError
      */
     public static function safeSubstr(
-        #[SensitiveParameter]
         string $str,
         int $start = 0,
         ?int $length = null

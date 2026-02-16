@@ -1,0 +1,12 @@
+<query id="getPasskey" action="select">
+    <tables>
+        <table name="googleotp_passkey" />
+    </tables>
+    <columns>
+        <column name="*" />
+    </columns>
+    <conditions>
+        <condition operation="equal" column="idx" var="idx" notnull="notnull" />
+        <condition operation="equal" column="member_srl" var="member_srl" notnull="notnull" pipe="and" />
+    </conditions>
+</query>

@@ -51,10 +51,17 @@
                             <input type="radio" name="issue_type" id="auth_sms" value="sms" checked="checked"|cond="$user_config->issue_type == 'sms'" /> SMS 인증
                         </label>
                         <!--@endif-->
+
+                        <!--@if(in_array('passkey', $googleotp_config->allow_issue_type))-->
+                        <label class="inline">
+                            <input type="radio" name="issue_type" id="auth_passkey" value="passkey" checked="checked"|cond="$user_config->issue_type == 'passkey'" /> 패스키 (Passkey)
+                        </label>
+                        <!--@endif-->
                         <p class="help-block">인증 방식을 설정해주세요.</p>
                         <p id="google_otp_help-block" style="display:none"|cond="$user_config->issue_type != 'otp'">주의 : 하단의 QR코드를 휴대폰에서 인식하여 Google OTP에 사이트를 추가해주세요.</p>
                         <p id="email_auth_help-block" style="display:none"|cond="$user_config->issue_type != 'email'">주의 : 다음 로그인부터 해당 이메일({$user_mail})로 인증 메일이 발송됩니다.</p>
                         <p id="sms_auth_help-block" style="display:none"|cond="$user_config->issue_type != 'sms'">주의 : 다음 로그인부터 해당 전화번호({$user_phone})로 인증 메세지가 발송됩니다.</p>
+                        <p id="passkey_auth_help-block" style="display:none"|cond="$user_config->issue_type != 'passkey'">패스키를 등록하면 지문, 얼굴 인식, 보안 키 등으로 2차 인증을 할 수 있습니다.</p>
                     </div>
                 </div>
                 <div class="control-group" id="google_otp_qr" style="display:none"|cond="$user_config->issue_type != 'otp'">
@@ -73,6 +80,45 @@
                 </div>
             </div>
         </section>
+        <!--@if(in_array('passkey', $googleotp_config->allow_issue_type))-->
+        <section class="section" id="passkey_section">
+            <h1>패스키 관리</h1>
+            <div class="control-group">
+                <div class="controls">
+                    <div style="margin-bottom:10px;">
+                        <input type="text" id="passkey_name" placeholder="패스키 이름 (예: 내 노트북)" style="margin-right:5px;" />
+                        <button type="button" class="btn btn-primary" id="btn_register_passkey" onclick="registerPasskey()">새 패스키 등록</button>
+                    </div>
+                    <p class="help-block" id="passkey_status"></p>
+
+                    <!--@if($passkey_list && count($passkey_list) > 0)-->
+                    <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                        <thead>
+                        <tr style="border-bottom:2px solid #ddd;">
+                            <th style="padding:8px; text-align:left;">패스키 이름</th>
+                            <th style="padding:8px; text-align:left;">등록일</th>
+                            <th style="padding:8px; text-align:center;">관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <!--@foreach($passkey_list as $pk)-->
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:8px;">{$pk->key_name}</td>
+                                <td style="padding:8px;">{date('Y-m-d H:i', $pk->created_at)}</td>
+                                <td style="padding:8px; text-align:center;">
+                                    <button type="button" class="btn btn-danger btn-small" onclick="deletePasskey({$pk->idx})">삭제</button>
+                                </td>
+                            </tr>
+                            <!--@end-->
+                        </tbody>
+                    </table>
+                    <!--@else-->
+                    <p style="margin-top:10px; color:#888;">등록된 패스키가 없습니다.</p>
+                    <!--@endif-->
+                </div>
+            </div>
+        </section>
+        <!--@endif-->
         <div class="clearfix btnArea">
             <div class="pull-right">
                 <button class="btn btn-primary" type="submit">설정 저장</button>
@@ -83,6 +129,7 @@
         </div>
     </form>
 </div>
+<load target="../../vendor/davidearl/webauthn/src/webauthnregister.js" />
 <script>
 $('#use_tfa').click(function(){
     $('#tfa_enabled').show();
@@ -97,6 +144,7 @@ $('#auth_otp').click(function(){
     $('#google_otp_help-block').show();
     $('#email_auth_help-block').hide();
     $('#sms_auth_help-block').hide();
+    $('#passkey_auth_help-block').hide();
 });
 $('#auth_email').click(function(){
     $('#google_otp_qr').hide();
@@ -104,6 +152,7 @@ $('#auth_email').click(function(){
     $('#google_otp_help-block').hide();
     $('#email_auth_help-block').show();
     $('#sms_auth_help-block').hide();
+    $('#passkey_auth_help-block').hide();
 });
 $('#auth_sms').click(function(){
     $('#google_otp_qr').hide();
@@ -111,6 +160,60 @@ $('#auth_sms').click(function(){
     $('#google_otp_help-block').hide();
     $('#email_auth_help-block').hide();
     $('#sms_auth_help-block').show();
+    $('#passkey_auth_help-block').hide();
 });
+$('#auth_passkey').click(function(){
+    $('#google_otp_qr').hide();
+    $('#google_otp_input').hide();
+    $('#google_otp_help-block').hide();
+    $('#email_auth_help-block').hide();
+    $('#sms_auth_help-block').hide();
+    $('#passkey_auth_help-block').show();
+});
+
+function registerPasskey(){
+    if(!window.PublicKeyCredential){
+        alert('이 브라우저는 패스키를 지원하지 않습니다.');
+        return;
+    }
+    $('#passkey_status').text('패스키 등록 준비 중...').css('color', '');
+    exec_json("googleotp.procGoogleotpPasskeyRegisterChallenge", {}, function(data){
+        if(data.error != 0){
+            $('#passkey_status').text(data.message).css('color', 'red');
+            return;
+        }
+        var challenge = data.challenge;
+        $('#passkey_status').text('보안 키를 터치하거나 생체 인증을 진행해주세요...').css('color', '');
+        webauthnRegister(challenge, function(success, info){
+            if(success){
+                exec_json("googleotp.procGoogleotpPasskeyRegister", {passkey_info: info, key_name: $('#passkey_name').val() || 'Passkey'}, function(regData){
+                    if(regData.error != 0){
+                        $('#passkey_status').text(regData.message).css('color', 'red');
+                    } else {
+                        $('#passkey_status').text('패스키가 등록되었습니다!').css('color', 'green');
+                        setTimeout(function(){ location.reload(); }, 1000);
+                    }
+                });
+            } else {
+                if(info === 'abort'){
+                    $('#passkey_status').text('패스키 등록이 취소되었습니다.').css('color', '#888');
+                } else {
+                    $('#passkey_status').text('패스키 등록 오류: ' + info).css('color', 'red');
+                }
+            }
+        });
+    });
+}
+
+function deletePasskey(passkey_idx){
+    if(!confirm('이 패스키를 삭제하시겠습니까?')) return;
+    exec_json("googleotp.procGoogleotpDeletePasskey", {passkey_idx: passkey_idx}, function(data){
+        if(data.error != 0){
+            alert(data.message);
+        } else {
+            location.reload();
+        }
+    });
+}
 </script>
 <include target="../../../member/skins/default/common_footer.html" cond="!$force_use_otp || ($force_use_otp && $user_config->use == 'Y')" />

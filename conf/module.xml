@@ -23,6 +23,12 @@
 		<action name="procGoogleotpResendauthmessage" type="controller" />
 		<action name="procGoogleotpDeleteTrustedDevice" type="controller" />
 		<action name="procGoogleotpDeleteAllTrustedDevices" type="controller" />
+
+		<action name="procGoogleotpPasskeyRegisterChallenge" type="controller" />
+		<action name="procGoogleotpPasskeyRegister" type="controller" />
+		<action name="procGoogleotpPasskeyLoginChallenge" type="controller" />
+		<action name="procGoogleotpPasskeyAuthenticate" type="controller" />
+		<action name="procGoogleotpDeletePasskey" type="controller" />
 	</actions>
 	<menus>
 		<menu name="googleotp" type="all">

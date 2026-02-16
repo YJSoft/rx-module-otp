@@ -3,9 +3,7 @@ declare(strict_types=1);
 namespace ParagonIE\ConstantTime;
 
 use InvalidArgumentException;
-use Override;
 use RangeException;
-use SensitiveParameter;
 use TypeError;
 use function pack;
 use function rtrim;
@@ -51,9 +49,7 @@ abstract class Base32 implements EncoderInterface
      * @param bool $strictPadding
      * @return string
      */
-    #[Override]
     public static function decode(
-        #[SensitiveParameter]
         string $encodedString,
         bool $strictPadding = false
     ): string {
@@ -68,7 +64,6 @@ abstract class Base32 implements EncoderInterface
      * @return string
      */
     public static function decodeUpper(
-        #[SensitiveParameter]
         string $src,
         bool $strictPadding = false
     ): string {
@@ -82,9 +77,7 @@ abstract class Base32 implements EncoderInterface
      * @return string
      * @throws TypeError
      */
-    #[Override]
     public static function encode(
-        #[SensitiveParameter]
         string $binString
     ): string {
         return static::doEncode($binString, false, true);
@@ -99,7 +92,6 @@ abstract class Base32 implements EncoderInterface
      * @api
      */
     public static function encodeUnpadded(
-        #[SensitiveParameter]
         string $src
     ): string {
         return static::doEncode($src, false, false);
@@ -114,7 +106,6 @@ abstract class Base32 implements EncoderInterface
      * @api
      */
     public static function encodeUpper(
-        #[SensitiveParameter]
         string $src
     ): string {
         return static::doEncode($src, true, true);
@@ -129,7 +120,6 @@ abstract class Base32 implements EncoderInterface
      * @api
      */
     public static function encodeUpperUnpadded(
-        #[SensitiveParameter]
         string $src
     ): string {
         return static::doEncode($src, true, false);
@@ -224,7 +214,6 @@ abstract class Base32 implements EncoderInterface
      * @api
      */
     public static function decodeNoPadding(
-        #[SensitiveParameter]
         string $encodedString,
         bool $upper = false
     ): string {
@@ -259,7 +248,6 @@ abstract class Base32 implements EncoderInterface
      * @throws TypeError
      */
     protected static function doDecode(
-        #[SensitiveParameter]
         string $src,
         bool $upper = false,
         bool $strictPadding = false
@@ -470,7 +458,6 @@ abstract class Base32 implements EncoderInterface
      * @throws TypeError
      */
     protected static function doEncode(
-        #[SensitiveParameter]
         string $src,
         bool $upper = false,
         bool $pad = true

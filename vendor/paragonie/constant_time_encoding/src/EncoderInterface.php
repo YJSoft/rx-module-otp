@@ -2,7 +2,6 @@
 declare(strict_types=1);
 namespace ParagonIE\ConstantTime;
 
-use SensitiveParameter;
 
 /**
  *  Copyright (c) 2016 - 2022 Paragon Initiative Enterprises.
@@ -41,7 +40,6 @@ interface EncoderInterface
      * @return string
      */
     public static function encode(
-        #[SensitiveParameter]
         string $binString
     ): string;
 
@@ -54,7 +52,6 @@ interface EncoderInterface
      * @return string (raw binary)
      */
     public static function decode(
-        #[SensitiveParameter]
         string $encodedString,
         bool $strictPadding = false
     ): string;

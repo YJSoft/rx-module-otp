@@ -6,7 +6,9 @@
  * @brief Google OTP 2차 인증 모듈의 모델 클래스
  */
 require_once(_XE_PATH_.'modules/googleotp/libs/SimpleAuthenticator.php');
+require_once(_XE_PATH_.'modules/googleotp/vendor/autoload.php');
 use SebastianDevs\SimpleAuthenticator;
+use Davidearl\WebAuthn\WebAuthn;
 
 class googleotpModel extends googleotp
 {
@@ -512,5 +514,239 @@ class googleotpModel extends googleotp
 		elseif(preg_match('/Linux/i', $ua)) $os = 'Linux';
 
 		return $browser . ' / ' . $os;
+	}
+
+	/**
+	 * WebAuthn 인스턴스를 생성하는 함수.
+	 *
+	 * @return WebAuthn
+	 */
+	public function getWebAuthn()
+	{
+		$domain = parse_url(getFullUrl(), PHP_URL_HOST);
+		return new WebAuthn($domain);
+	}
+
+	/**
+	 * 패스키 등록을 위한 챌린지를 생성하는 함수.
+	 *
+	 * @param string $username 사용자 이름
+	 * @param string $userid 사용자 고유 ID
+	 * @return string JSON 형식의 챌린지 데이터
+	 */
+	public function preparePasskeyRegistration($username, $userid)
+	{
+		$webauthn = $this->getWebAuthn();
+		$challenge = $webauthn->prepareChallengeForRegistration($username, strval($userid));
+		$_SESSION['webauthn_challenge'] = $challenge;
+		return $challenge;
+	}
+
+	/**
+	 * 패스키 등록을 처리하는 함수.
+	 *
+	 * @param int $member_srl 회원 번호
+	 * @param string $info 브라우저에서 전달된 인증 데이터 (JSON)
+	 * @param string $key_name 패스키 이름
+	 * @return bool 등록 성공 여부
+	 */
+	public function registerPasskey($member_srl, $info, $key_name = 'Passkey')
+	{
+		$webauthn = $this->getWebAuthn();
+
+		// 기존 등록된 패스키 데이터 가져오기
+		$existing = $this->getPasskeyWebauthnData($member_srl);
+
+		try {
+			$webauthn_data = $webauthn->register($info, $existing);
+		} catch (\Exception $e) {
+			return false;
+		}
+
+		// 새로 등록된 키만 추출 (기존 키 제외)
+		$all_keys = json_decode($webauthn_data, true);
+		if($existing)
+		{
+			$existing_keys = json_decode($existing, true);
+			$existing_ids = [];
+			if(is_array($existing_keys))
+			{
+				foreach($existing_keys as $ek)
+				{
+					if(isset($ek['id'])) $existing_ids[] = $ek['id'];
+				}
+			}
+			$new_keys = [];
+			if(is_array($all_keys))
+			{
+				foreach($all_keys as $key)
+				{
+					if(isset($key['id']) && !in_array($key['id'], $existing_ids))
+					{
+						$new_keys[] = $key;
+					}
+				}
+			}
+			$new_key_data = json_encode($new_keys ?: $all_keys);
+		}
+		else
+		{
+			$new_key_data = $webauthn_data;
+		}
+
+		// 항상 새로운 행으로 삽입
+		$decoded = json_decode($info);
+		$credential_id = isset($decoded->id) ? $decoded->id : '';
+
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$args->credential_id = $credential_id;
+		$args->webauthn_data = $new_key_data;
+		$args->key_name = $key_name ?: 'Passkey';
+		$args->created_at = time();
+		$output = executeQuery('googleotp.insertPasskey', $args);
+
+		return $output->toBool();
+	}
+
+	/**
+	 * 패스키 인증을 위한 챌린지를 생성하는 함수.
+	 *
+	 * @param int $member_srl 회원 번호
+	 * @return string|false JSON 형식의 챌린지 데이터 또는 실패시 false
+	 */
+	public function preparePasskeyLogin($member_srl)
+	{
+		$webauthn = $this->getWebAuthn();
+		$webauthn_data = $this->getPasskeyWebauthnData($member_srl);
+
+		if(empty($webauthn_data)) return false;
+
+		$challenge = $webauthn->prepareForLogin($webauthn_data);
+
+		// 챌린지 생성 후 업데이트된 webauthn_data 저장 (리플레이 공격 방지)
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$args->webauthn_data = $webauthn_data;
+		executeQuery('googleotp.updatePasskeyWebauthnData', $args);
+
+		$_SESSION['webauthn_login_challenge'] = $challenge;
+		return $challenge;
+	}
+
+	/**
+	 * 패스키 인증을 수행하는 함수.
+	 *
+	 * @param int $member_srl 회원 번호
+	 * @param string $info 브라우저에서 전달된 인증 데이터 (JSON)
+	 * @return bool 인증 성공 여부
+	 */
+	public function authenticatePasskey($member_srl, $info)
+	{
+		$webauthn = $this->getWebAuthn();
+		$webauthn_data = $this->getPasskeyWebauthnData($member_srl);
+
+		if(empty($webauthn_data)) return false;
+
+		try {
+			$result = $webauthn->authenticate($info, $webauthn_data);
+		} catch (\Exception $e) {
+			return false;
+		}
+
+		if($result)
+		{
+			// 인증 후 업데이트된 webauthn_data 저장 (리플레이 공격 방지)
+			$args = new stdClass();
+			$args->member_srl = $member_srl;
+			$args->webauthn_data = $webauthn_data;
+			executeQuery('googleotp.updatePasskeyWebauthnData', $args);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * 회원의 WebAuthn 데이터를 가져오는 함수.
+	 *
+	 * @param int $member_srl 회원 번호
+	 * @return string|null WebAuthn 데이터 (JSON) 또는 null
+	 */
+	public function getPasskeyWebauthnData($member_srl)
+	{
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$output = executeQueryArray('googleotp.getPasskeysByMemberSrl', $args);
+		if(!$output->toBool() || empty($output->data)) return null;
+
+		// 모든 패스키의 webauthn_data를 합쳐서 하나의 JSON 배열로 반환
+		$all_keys = [];
+		foreach($output->data as $passkey)
+		{
+			$keys = json_decode($passkey->webauthn_data);
+			if(is_array($keys) && !empty($keys))
+			{
+				$all_keys = array_merge($all_keys, $keys);
+			}
+		}
+
+		return empty($all_keys) ? null : json_encode($all_keys);
+	}
+
+	/**
+	 * 회원의 패스키 목록을 가져오는 함수.
+	 *
+	 * @param int $member_srl 회원 번호
+	 * @return array 패스키 목록
+	 */
+	public function getPasskeyList($member_srl)
+	{
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$output = executeQueryArray('googleotp.getPasskeysByMemberSrl', $args);
+		if(!$output->toBool() || empty($output->data)) return [];
+		return $output->data;
+	}
+
+	/**
+	 * 패스키를 삭제하는 함수.
+	 *
+	 * @param int $idx 패스키 인덱스
+	 * @param int $member_srl 회원 번호
+	 * @return bool 성공 여부
+	 */
+	public function deletePasskey($idx, $member_srl)
+	{
+		$args = new stdClass();
+		$args->idx = $idx;
+		$args->member_srl = $member_srl;
+		$output = executeQuery('googleotp.deletePasskey', $args);
+		return $output->toBool();
+	}
+
+	/**
+	 * 회원의 모든 패스키를 삭제하는 함수.
+	 *
+	 * @param int $member_srl 회원 번호
+	 * @return bool 성공 여부
+	 */
+	public function deleteAllPasskeys($member_srl)
+	{
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$output = executeQuery('googleotp.deleteAllPasskeysByMemberSrl', $args);
+		return $output->toBool();
+	}
+
+	/**
+	 * 회원에게 등록된 패스키가 있는지 확인하는 함수.
+	 *
+	 * @param int $member_srl 회원 번호
+	 * @return bool 패스키 존재 여부
+	 */
+	public function hasPasskey($member_srl)
+	{
+		$data = $this->getPasskeyWebauthnData($member_srl);
+		return !empty($data);
 	}
 }

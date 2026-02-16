@@ -2,9 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\ConstantTime;
 
-use Override;
 use RangeException;
-use SensitiveParameter;
 use SodiumException;
 use TypeError;
 use function extension_loaded;
@@ -51,9 +49,7 @@ abstract class Hex implements EncoderInterface
      * @return string
      * @throws TypeError
      */
-    #[Override]
     public static function encode(
-        #[SensitiveParameter]
         string $binString
     ): string {
         if (extension_loaded('sodium')) {
@@ -89,7 +85,6 @@ abstract class Hex implements EncoderInterface
      * @throws TypeError
      */
     public static function encodeUpper(
-        #[SensitiveParameter]
         string $binString
     ): string {
         $hex = '';
@@ -119,9 +114,7 @@ abstract class Hex implements EncoderInterface
      * @return string (raw binary)
      * @throws RangeException
      */
-    #[Override]
     public static function decode(
-        #[SensitiveParameter]
         string $encodedString,
         bool $strictPadding = false
     ): string {

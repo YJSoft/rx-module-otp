@@ -54,7 +54,7 @@ class googleotp extends ModuleObject
 			$oModuleModel = moduleModel::getInstance();
 			self::$_config_cache = $oModuleModel->getModuleConfig($this->module) ?: new stdClass;
 
-			if(!isset(self::$_config_cache->allow_issue_type)) self::$_config_cache->allow_issue_type = ['otp','email'];
+			if(!isset(self::$_config_cache->allow_issue_type)) self::$_config_cache->allow_issue_type = ['otp','email','passkey'];
 			if(!isset(self::$_config_cache->auth_retry_hour)) self::$_config_cache->auth_retry_hour = 3;
 			if(!isset(self::$_config_cache->auth_retry_limit)) self::$_config_cache->auth_retry_limit = 10;
 			if(!isset(self::$_config_cache->use_captcha)) self::$_config_cache->use_captcha = 'N';
@@ -300,7 +300,13 @@ class googleotp extends ModuleObject
 	 */
 	public function checkUpdate()
 	{
-		return $this->checkTriggers();
+		if ($this->checkTriggers()) return true;
+
+		$oDB = DB::getInstance();
+		if (!$oDB->isColumnExists('googleotp_memberconfig', 'issue_type')) return true;
+		if (!$oDB->isColumnExists('googleotp_authlog', 'issue_type')) return true;
+
+		return false;
 	}
 
 	/**
@@ -312,7 +318,19 @@ class googleotp extends ModuleObject
 	 */
 	public function moduleUpdate()
 	{
-		return $this->registerTriggers();
+		$this->registerTriggers();
+
+		$oDB = DB::getInstance();
+		if (!$oDB->isColumnExists('googleotp_memberconfig', 'issue_type'))
+		{
+			$oDB->addColumn('googleotp_memberconfig', 'issue_type', 'varchar', 10, 'none', true);
+		}
+		if (!$oDB->isColumnExists('googleotp_authlog', 'issue_type'))
+		{
+			$oDB->addColumn('googleotp_authlog', 'issue_type', 'varchar', 10, 'none', true);
+		}
+
+		return $this->createObject(0, 'success_updated');
 	}
 
 	/**
