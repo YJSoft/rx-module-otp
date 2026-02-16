@@ -32,46 +32,74 @@
             <div id="tfa_enabled" style="display:none"|cond="$user_config->use != 'Y' && !$force_use_otp">
                 <hr><br>
                 <div class="control-group">
-                    <label class="control-label">2차 인증 방식</label>
+                    <label class="control-label">2차 인증 방식 (복수 선택 가능)</label>
                     <div class="controls">
                         <!--@if(in_array('otp', $googleotp_config->allow_issue_type))-->
                         <label class="inline">
-                            <input type="radio" name="issue_type" id="auth_otp" value="otp" checked="checked"|cond="$user_config->issue_type == 'otp'" /> Google OTP
+                            <input type="checkbox" name="issue_type[]" id="auth_otp" value="otp" checked="checked"|cond="in_array('otp', explode(',', $user_config->issue_type))" /> Google OTP
                         </label>
                         <!--@endif-->
 
                         <!--@if(in_array('email', $googleotp_config->allow_issue_type))-->
                         <label class="inline">
-                            <input type="radio" name="issue_type" id="auth_email" value="email" checked="checked"|cond="$user_config->issue_type == 'email'" /> 이메일 인증
+                            <input type="checkbox" name="issue_type[]" id="auth_email" value="email" checked="checked"|cond="in_array('email', explode(',', $user_config->issue_type))" /> 이메일 인증
                         </label>
                         <!--@endif-->
 
                         <!--@if(in_array('sms', $googleotp_config->allow_issue_type))-->
                         <label class="inline">
-                            <input type="radio" name="issue_type" id="auth_sms" value="sms" checked="checked"|cond="$user_config->issue_type == 'sms'" /> SMS 인증
+                            <input type="checkbox" name="issue_type[]" id="auth_sms" value="sms" checked="checked"|cond="in_array('sms', explode(',', $user_config->issue_type))" /> SMS 인증
                         </label>
                         <!--@endif-->
 
                         <!--@if(in_array('passkey', $googleotp_config->allow_issue_type))-->
                         <label class="inline">
-                            <input type="radio" name="issue_type" id="auth_passkey" value="passkey" checked="checked"|cond="$user_config->issue_type == 'passkey'" /> 패스키 (Passkey)
+                            <input type="checkbox" name="issue_type[]" id="auth_passkey" value="passkey" checked="checked"|cond="in_array('passkey', explode(',', $user_config->issue_type))" /> 패스키 (Passkey)
                         </label>
                         <!--@endif-->
-                        <p class="help-block">인증 방식을 설정해주세요.</p>
-                        <p id="google_otp_help-block" style="display:none"|cond="$user_config->issue_type != 'otp'">주의 : 하단의 QR코드를 휴대폰에서 인식하여 Google OTP에 사이트를 추가해주세요.</p>
-                        <p id="email_auth_help-block" style="display:none"|cond="$user_config->issue_type != 'email'">주의 : 다음 로그인부터 해당 이메일({$user_mail})로 인증 메일이 발송됩니다.</p>
-                        <p id="sms_auth_help-block" style="display:none"|cond="$user_config->issue_type != 'sms'">주의 : 다음 로그인부터 해당 전화번호({$user_phone})로 인증 메세지가 발송됩니다.</p>
-                        <p id="passkey_auth_help-block" style="display:none"|cond="$user_config->issue_type != 'passkey'">패스키를 등록하면 지문, 얼굴 인식, 보안 키 등으로 2차 인증을 할 수 있습니다.</p>
+                        <p class="help-block">사용할 인증 방식을 선택해주세요. 여러 개를 선택하면 로그인 시 다른 방식으로 전환할 수 있습니다.</p>
                     </div>
                 </div>
-                <div class="control-group" id="google_otp_qr" style="display:none"|cond="$user_config->issue_type != 'otp'">
+                <div class="control-group" id="default_issue_type_group">
+                    <label class="control-label">기본 인증 방식</label>
+                    <div class="controls">
+                        <select name="default_issue_type" id="default_issue_type">
+                            <!--@if(in_array('otp', $googleotp_config->allow_issue_type))-->
+                            <option value="otp" selected="selected"|cond="($user_config->default_issue_type ?: explode(',', $user_config->issue_type)[0]) == 'otp'">Google OTP</option>
+                            <!--@endif-->
+                            <!--@if(in_array('email', $googleotp_config->allow_issue_type))-->
+                            <option value="email" selected="selected"|cond="($user_config->default_issue_type ?: explode(',', $user_config->issue_type)[0]) == 'email'">이메일 인증</option>
+                            <!--@endif-->
+                            <!--@if(in_array('sms', $googleotp_config->allow_issue_type))-->
+                            <option value="sms" selected="selected"|cond="($user_config->default_issue_type ?: explode(',', $user_config->issue_type)[0]) == 'sms'">SMS 인증</option>
+                            <!--@endif-->
+                            <!--@if(in_array('passkey', $googleotp_config->allow_issue_type))-->
+                            <option value="passkey" selected="selected"|cond="($user_config->default_issue_type ?: explode(',', $user_config->issue_type)[0]) == 'passkey'">패스키 (Passkey)</option>
+                            <!--@endif-->
+                        </select>
+                        <p class="help-block">로그인 시 기본으로 사용할 인증 방식을 선택해주세요.</p>
+                    </div>
+                </div>
+                <div id="google_otp_help-block" style="display:none"|cond="!in_array('otp', explode(',', $user_config->issue_type))">
+                    <p>주의 : 하단의 QR코드를 휴대폰에서 인식하여 Google OTP에 사이트를 추가해주세요.</p>
+                </div>
+                <div id="email_auth_help-block" style="display:none"|cond="!in_array('email', explode(',', $user_config->issue_type))">
+                    <p>주의 : 다음 로그인부터 해당 이메일({$user_mail})로 인증 메일이 발송됩니다.</p>
+                </div>
+                <div id="sms_auth_help-block" style="display:none"|cond="!in_array('sms', explode(',', $user_config->issue_type))">
+                    <p>주의 : 다음 로그인부터 해당 전화번호({$user_phone})로 인증 메세지가 발송됩니다.</p>
+                </div>
+                <div id="passkey_auth_help-block" style="display:none"|cond="!in_array('passkey', explode(',', $user_config->issue_type))">
+                    <p>패스키를 등록하면 지문, 얼굴 인식, 보안 키 등으로 2차 인증을 할 수 있습니다.</p>
+                </div>
+                <div class="control-group" id="google_otp_qr" style="display:none"|cond="!in_array('otp', explode(',', $user_config->issue_type))">
                     <label class="control-label">Google OTP QR코드</label>
                     <div class="controls">
                         <img src="{$user_config->qrcode}" />
                         <p class="help-block">Google OTP에 등록할 때 사용할 QR코드입니다 외부로 유출되지 않도록 아이디 및 절대 이 QR코드를 저장하지 마세요.</p>
                     </div>
                 </div>
-                <div class="control-group" id="google_otp_input" style="display:none"|cond="$user_config->issue_type != 'otp'">
+                <div class="control-group" id="google_otp_input" style="display:none"|cond="!in_array('otp', explode(',', $user_config->issue_type))">
                     <label class="control-label">확인용 인증코드</label>
                     <div class="controls">
                         <input type="number" name="test_auth_key" value="" />
@@ -138,37 +166,59 @@ $('#no_use_tfa').click(function(){
     $('#tfa_enabled').hide();
 });
 
-$('#auth_otp').click(function(){
-    $('#google_otp_qr').show();
-    $('#google_otp_input').show();
-    $('#google_otp_help-block').show();
-    $('#email_auth_help-block').hide();
-    $('#sms_auth_help-block').hide();
-    $('#passkey_auth_help-block').hide();
-});
-$('#auth_email').click(function(){
-    $('#google_otp_qr').hide();
-    $('#google_otp_input').hide();
-    $('#google_otp_help-block').hide();
-    $('#email_auth_help-block').show();
-    $('#sms_auth_help-block').hide();
-    $('#passkey_auth_help-block').hide();
-});
-$('#auth_sms').click(function(){
-    $('#google_otp_qr').hide();
-    $('#google_otp_input').hide();
-    $('#google_otp_help-block').hide();
-    $('#email_auth_help-block').hide();
-    $('#sms_auth_help-block').show();
-    $('#passkey_auth_help-block').hide();
-});
-$('#auth_passkey').click(function(){
-    $('#google_otp_qr').hide();
-    $('#google_otp_input').hide();
-    $('#google_otp_help-block').hide();
-    $('#email_auth_help-block').hide();
-    $('#sms_auth_help-block').hide();
-    $('#passkey_auth_help-block').show();
+function updateAuthHelpBlocks() {
+    var otpChecked = $('#auth_otp').is(':checked');
+    var emailChecked = $('#auth_email').is(':checked');
+    var smsChecked = $('#auth_sms').is(':checked');
+    var passkeyChecked = $('#auth_passkey').is(':checked');
+
+    $('#google_otp_help-block').toggle(otpChecked);
+    $('#google_otp_qr').toggle(otpChecked);
+    $('#google_otp_input').toggle(otpChecked);
+    $('#email_auth_help-block').toggle(emailChecked);
+    $('#sms_auth_help-block').toggle(smsChecked);
+    $('#passkey_auth_help-block').toggle(passkeyChecked);
+
+    updateDefaultIssueType();
+}
+
+function updateDefaultIssueType() {
+    var checkedTypes = [];
+    $('input[name="issue_type[]"]:checked').each(function(){
+        checkedTypes.push($(this).val());
+    });
+
+    $('#default_issue_type option').each(function(){
+        var optVal = $(this).val();
+        if(checkedTypes.indexOf(optVal) >= 0) {
+            $(this).prop('disabled', false).show();
+        } else {
+            $(this).prop('disabled', true).hide();
+        }
+    });
+
+    // 현재 선택된 기본 방식이 비활성화된 경우 첫 번째 활성화된 방식으로 변경
+    var currentDefault = $('#default_issue_type').val();
+    if(checkedTypes.indexOf(currentDefault) < 0 && checkedTypes.length > 0) {
+        $('#default_issue_type').val(checkedTypes[0]);
+    }
+
+    // 선택된 인증 방식이 없으면 기본 방식 선택 숨기기
+    if(checkedTypes.length <= 1) {
+        $('#default_issue_type_group').hide();
+    } else {
+        $('#default_issue_type_group').show();
+    }
+}
+
+$('#auth_otp').change(updateAuthHelpBlocks);
+$('#auth_email').change(updateAuthHelpBlocks);
+$('#auth_sms').change(updateAuthHelpBlocks);
+$('#auth_passkey').change(updateAuthHelpBlocks);
+
+// 초기 상태 설정
+$(document).ready(function(){
+    updateAuthHelpBlocks();
 });
 
 function registerPasskey(){

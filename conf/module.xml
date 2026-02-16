@@ -21,6 +21,7 @@
 		<action name="procGoogleotpUserConfig" type="controller"/>
 		<action name="procGoogleotpInputotp" type="controller"/>
 		<action name="procGoogleotpResendauthmessage" type="controller" />
+		<action name="procGoogleotpSwitchAuthMethod" type="controller" />
 		<action name="procGoogleotpDeleteTrustedDevice" type="controller" />
 		<action name="procGoogleotpDeleteAllTrustedDevices" type="controller" />
 

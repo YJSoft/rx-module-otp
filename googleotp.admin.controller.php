@@ -63,7 +63,35 @@ class googleotpAdminController extends googleotp
 		$args = new stdClass();
 		$args->srl = $obj->srl;
 		$args->use = $obj->use;
-		$args->issue_type = $obj->issue_type;
+
+		// 여러 인증방식 처리
+		if(is_array($obj->issue_type))
+		{
+			$issue_types = array_filter($obj->issue_type, function($t) {
+				return in_array($t, array('otp', 'email', 'sms', 'passkey'));
+			});
+			$args->issue_type = !empty($issue_types) ? implode(',', $issue_types) : 'none';
+		}
+		else
+		{
+			$args->issue_type = $obj->issue_type ?: 'none';
+		}
+
+		// 기본 인증 방식 설정
+		$active_types = array_filter(explode(',', $args->issue_type));
+		if($obj->default_issue_type && in_array($obj->default_issue_type, $active_types))
+		{
+			$args->default_issue_type = $obj->default_issue_type;
+		}
+		else if(!empty($active_types))
+		{
+			$args->default_issue_type = $active_types[0];
+		}
+		else
+		{
+			$args->default_issue_type = 'none';
+		}
+
 		$output = executeQuery('googleotp.updateGoogleotpuserconfigbySrl', $args);
 		if(!$output->toBool())
 		{

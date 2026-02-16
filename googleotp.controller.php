@@ -43,13 +43,42 @@ class googleotpController extends googleotp
 		$cond = new stdClass();
 		$cond->srl = $member_srl;
 		$cond->use = Context::get("use") === "Y" ? "Y" : "N";
-		$cond->issue_type = Context::get("issue_type") ?: 'none';
 
-		if($cond->use == 'Y' && !in_array($cond->issue_type, array('otp', 'email', 'sms', 'passkey'))) {
+		// 여러 인증방식 처리: 배열이면 쉼표로 연결, 단일 값이면 그대로 사용
+		$issue_type_input = Context::get("issue_type");
+		if(is_array($issue_type_input))
+		{
+			$issue_types = array_filter($issue_type_input, function($t) {
+				return in_array($t, array('otp', 'email', 'sms', 'passkey'));
+			});
+			$cond->issue_type = !empty($issue_types) ? implode(',', $issue_types) : 'none';
+		}
+		else
+		{
+			$cond->issue_type = $issue_type_input ?: 'none';
+		}
+
+		// 기본 인증 방식 설정
+		$default_issue_type = Context::get("default_issue_type");
+		$active_types = array_filter(explode(',', $cond->issue_type));
+		if($default_issue_type && in_array($default_issue_type, $active_types))
+		{
+			$cond->default_issue_type = $default_issue_type;
+		}
+		else if(!empty($active_types))
+		{
+			$cond->default_issue_type = $active_types[0];
+		}
+		else
+		{
+			$cond->default_issue_type = 'none';
+		}
+
+		if($cond->use == 'Y' && $cond->issue_type === 'none') {
 			return $this->createObject(-1, "2차 인증 방식을 선택해주세요.");
 		}
 
-		if($cond->use == 'Y' && $cond->issue_type == 'otp') {
+		if($cond->use == 'Y' && in_array('otp', $active_types)) {
 			if(!$test_auth_key) {
 				return $this->createObject(-1, "확인용 인증코드를 입력해주세요.");
 			}
@@ -59,7 +88,7 @@ class googleotpController extends googleotp
 			}
 		}
 
-		if($cond->use == 'Y' && $cond->issue_type == 'passkey') {
+		if($cond->use == 'Y' && in_array('passkey', $active_types)) {
 			if(!$oGoogleOTPModel->hasPasskey($member_srl)) {
 				return $this->createObject(-1, "패스키를 먼저 등록해주세요.");
 			}
@@ -121,9 +150,11 @@ class googleotpController extends googleotp
 
 		$oGoogleOTPModel = googleotpModel::getInstance();
 		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
-		$issue_type = $userconfig->issue_type;
+
+		// 현재 활성화된 인증 방식 결정 (세션에서 선택한 방식 또는 기본 방식)
+		$active_issue_type = $_SESSION['googleotp_active_type'] ?? $oGoogleOTPModel->getDefaultIssueType($userconfig);
 		
-		if($oGoogleOTPModel->checkOTPNumber($member_srl,$otpnumber))
+		if($oGoogleOTPModel->checkOTPNumber($member_srl,$otpnumber,$active_issue_type))
 		{
 		    if(!$oGoogleOTPModel->checkUsedNumber($member_srl,$otpnumber))
 		    {
@@ -131,8 +162,9 @@ class googleotpController extends googleotp
 		    }
 		    else
 		    {
-		      $oGoogleOTPModel->insertAuthlog($member_srl, $otpnumber, "Y", $issue_type);
+		      $oGoogleOTPModel->insertAuthlog($member_srl, $otpnumber, "Y", $active_issue_type);
 			    $_SESSION['googleotp_passed'] = TRUE;
+			    unset($_SESSION['googleotp_active_type']);
 
 			    // 신뢰할 수 있는 기기 등록 처리
 			    $trust_device = Context::get("trust_device");
@@ -159,7 +191,7 @@ class googleotpController extends googleotp
 		}
 		else
 		{
-		  $oGoogleOTPModel->insertAuthlog($member_srl, $otpnumber, "N", $issue_type);
+		  $oGoogleOTPModel->insertAuthlog($member_srl, $otpnumber, "N", $active_issue_type);
 			$this->setError(-1);
 			$this->setMessage("잘못된 인증 번호입니다");
 			$this->setRedirectUrl(Context::get('error_return_url') ?: getNotEncodedUrl('', 'act', 'dispGoogleotpInputotp'));
@@ -182,7 +214,10 @@ class googleotpController extends googleotp
 		$oGoogleOTPModel = googleotpModel::getInstance();
 		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
 
-		if($userconfig->issue_type == 'email')
+		// 현재 활성화된 인증 방식 사용
+		$active_issue_type = $_SESSION['googleotp_active_type'] ?? $oGoogleOTPModel->getDefaultIssueType($userconfig);
+
+		if($active_issue_type == 'email')
 		{
 			if($oGoogleOTPModel->AvailableToSendEmail($member_srl)) // 인증 메일을 보낼 수 있을 경우
 			{
@@ -194,7 +229,7 @@ class googleotpController extends googleotp
 				return $this->createObject(-1, "인증 메일을 재발송할 수 없습니다.\n\n관리자에게 문의하세요.");
 			}
 		}
-		elseif($userconfig->issue_type == 'sms')
+		elseif($active_issue_type == 'sms')
 		{
 			if($oGoogleOTPModel->AvailableToSendSMS($member_srl)) // 인증 SMS를 보낼 수 있을 경우
 			{
@@ -206,6 +241,40 @@ class googleotpController extends googleotp
 				return $this->createObject(-1, "인증 문자를 재발송할 수 없습니다.\n\n관리자에게 문의하세요.");
 			}
 		}
+	}
+
+	/**
+	 * 로그인 시 인증 방식을 변경하는 함수.
+	 *
+	 * 사용자가 활성화한 다른 인증 방식으로 전환한다.
+	 *
+	 * @return BaseObject|void
+	 */
+	function procGoogleotpSwitchAuthMethod()
+	{
+		if(!Context::get("is_logged")) return $this->createObject(-1, "로그인하지 않았습니다.");
+		if($_SESSION['googleotp_passed']) return $this->createObject(-1, "이미 인증했습니다.");
+
+		$member_srl = Context::get('logged_info')->member_srl;
+		$switch_to = Context::get('switch_to');
+
+		if(!in_array($switch_to, array('otp', 'email', 'sms', 'passkey')))
+		{
+			return $this->createObject(-1, "잘못된 인증 방식입니다.");
+		}
+
+		$oGoogleOTPModel = googleotpModel::getInstance();
+		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
+
+		// 사용자가 해당 인증 방식을 활성화했는지 확인
+		if(!$oGoogleOTPModel->hasIssueType($userconfig, $switch_to))
+		{
+			return $this->createObject(-1, "해당 인증 방식이 활성화되어 있지 않습니다.");
+		}
+
+		$_SESSION['googleotp_active_type'] = $switch_to;
+
+		$this->setRedirectUrl(getNotEncodedUrl('', 'act', 'dispGoogleotpInputotp'));
 	}
 
 	/**
@@ -242,6 +311,7 @@ class googleotpController extends googleotp
 	function triggerHijackLogin($obj) {
 		if(!Context::get("is_logged") || $obj->act === "dispMemberLogout") {
 			unset($_SESSION['googleotp_passed']);
+			unset($_SESSION['googleotp_active_type']);
 			return;
 		}
 
@@ -261,7 +331,7 @@ class googleotpController extends googleotp
 		}
 
 		if($userconfig->use === "Y") {
-			$allowedact = array("dispGoogleotpInputotp","procGoogleotpInputotp","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage","getMember_divideList","procGoogleotpPasskeyLoginChallenge","procGoogleotpPasskeyAuthenticate");
+			$allowedact = array("dispGoogleotpInputotp","procGoogleotpInputotp","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage","procGoogleotpSwitchAuthMethod","getMember_divideList","procGoogleotpPasskeyLoginChallenge","procGoogleotpPasskeyAuthenticate");
 			if(!in_array($obj->act, $allowedact) && !$_SESSION['googleotp_passed'])
 			{
 				$_SESSION['beforeaddress'] = getNotEncodedUrl();
@@ -470,6 +540,7 @@ class googleotpController extends googleotp
 		{
 			$oGoogleOTPModel->insertAuthlog($member_srl, 'passkey', "Y", "passkey");
 			$_SESSION['googleotp_passed'] = TRUE;
+			unset($_SESSION['googleotp_active_type']);
 
 			// 신뢰할 수 있는 기기 등록 처리
 			$trust_device = Context::get("trust_device");
@@ -520,7 +591,7 @@ class googleotpController extends googleotp
 
 		// 2차 인증이 패스키 방식으로 활성화된 경우, 마지막 패스키는 삭제 불가
 		$user_config = $oGoogleOTPModel->getUserConfig($member_srl);
-		if($user_config && $user_config->use === 'Y' && $user_config->issue_type === 'passkey')
+		if($user_config && $user_config->use === 'Y' && $oGoogleOTPModel->hasIssueType($user_config, 'passkey'))
 		{
 			$passkey_list = $oGoogleOTPModel->getPasskeyList($member_srl);
 			if(count($passkey_list) <= 1)

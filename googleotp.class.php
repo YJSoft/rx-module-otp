@@ -305,6 +305,8 @@ class googleotp extends ModuleObject
 		$oDB = DB::getInstance();
 		if (!$oDB->isColumnExists('googleotp_memberconfig', 'issue_type')) return true;
 		if (!$oDB->isColumnExists('googleotp_authlog', 'issue_type')) return true;
+		if (!$oDB->isColumnExists('googleotp_memberconfig', 'default_issue_type')) return true;
+		if ($oDB->getColumnInfo('googleotp_memberconfig', 'issue_type')->size < 50) return true;
 
 		return false;
 	}
@@ -323,11 +325,19 @@ class googleotp extends ModuleObject
 		$oDB = DB::getInstance();
 		if (!$oDB->isColumnExists('googleotp_memberconfig', 'issue_type'))
 		{
-			$oDB->addColumn('googleotp_memberconfig', 'issue_type', 'varchar', 10, 'none', true);
+			$oDB->addColumn('googleotp_memberconfig', 'issue_type', 'varchar', 50, 'none', true);
 		}
 		if (!$oDB->isColumnExists('googleotp_authlog', 'issue_type'))
 		{
 			$oDB->addColumn('googleotp_authlog', 'issue_type', 'varchar', 10, 'none', true);
+		}
+		if (!$oDB->isColumnExists('googleotp_memberconfig', 'default_issue_type'))
+		{
+			$oDB->addColumn('googleotp_memberconfig', 'default_issue_type', 'varchar', 10, 'none', true);
+		}
+		if ($oDB->getColumnInfo('googleotp_memberconfig', 'issue_type')->size < 50)
+		{
+			$oDB->modifyColumn('googleotp_memberconfig', 'issue_type', 'varchar', 50, null, true);
 		}
 
 		return $this->createObject(0, 'success_updated');

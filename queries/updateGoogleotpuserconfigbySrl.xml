@@ -5,6 +5,7 @@
     <columns>
         <column name="use" var="use" notnull="notnull" />
         <column name="issue_type" var="issue_type" notnull="notnull" />
+        <column name="default_issue_type" var="default_issue_type" />
     </columns>
     <conditions>
         <condition operation="equal" column="srl" var="srl" filter="number" notnull="notnull" />
