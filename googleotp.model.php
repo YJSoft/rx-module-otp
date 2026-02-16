@@ -372,4 +372,145 @@ class googleotpModel extends googleotp
 
 		return $send_status;
 	}
+
+	/**
+	 * 신뢰할 수 있는 기기를 등록하는 함수.
+	 *
+	 * @param int $member_srl
+	 * @param int $trust_days
+	 * @return string|false 생성된 device_token 또는 실패시 false
+	 */
+	public function registerTrustedDevice($member_srl, $trust_days = 30)
+	{
+		$device_token = bin2hex(random_bytes(32));
+		$device_name = $this->getDeviceName();
+
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$args->device_token = hash('sha256', $device_token);
+		$args->device_name = $device_name;
+		$args->ipaddress = defined('RX_CLIENT_IP') ? RX_CLIENT_IP : $_SERVER['REMOTE_ADDR'];
+		$args->created_at = time();
+		$args->expires_at = time() + ($trust_days * 86400);
+
+		$output = executeQuery('googleotp.insertTrustedDevice', $args);
+		if(!$output->toBool()) return false;
+
+		return $device_token;
+	}
+
+	/**
+	 * 신뢰할 수 있는 기기인지 확인하는 함수.
+	 *
+	 * @param int $member_srl
+	 * @param string $device_token
+	 * @return bool
+	 */
+	public function checkTrustedDevice($member_srl, $device_token)
+	{
+		if(empty($device_token)) return false;
+
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$args->device_token = hash('sha256', $device_token);
+		$args->current_time = time();
+
+		$output = executeQuery('googleotp.getTrustedDevice', $args);
+		if(!$output->toBool() || empty($output->data)) return false;
+
+		return true;
+	}
+
+	/**
+	 * 회원의 신뢰할 수 있는 기기 목록을 가져오는 함수.
+	 *
+	 * @param int $member_srl
+	 * @param int $page
+	 * @return object
+	 */
+	public function getTrustedDeviceList($member_srl, $page = 1)
+	{
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$args->page = $page;
+		$args->list_count = 20;
+		$args->page_count = 10;
+
+		return executeQueryArray('googleotp.getTrustedDeviceList', $args);
+	}
+
+	/**
+	 * 신뢰할 수 있는 기기를 삭제하는 함수.
+	 *
+	 * @param int $idx
+	 * @param int $member_srl
+	 * @return bool
+	 */
+	public function deleteTrustedDevice($idx, $member_srl)
+	{
+		$args = new stdClass();
+		$args->idx = $idx;
+		$args->member_srl = $member_srl;
+
+		$output = executeQuery('googleotp.deleteTrustedDevice', $args);
+		return $output->toBool();
+	}
+
+	/**
+	 * 회원의 모든 신뢰할 수 있는 기기를 삭제하는 함수.
+	 *
+	 * @param int $member_srl
+	 * @return bool
+	 */
+	public function deleteAllTrustedDevices($member_srl)
+	{
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+
+		$output = executeQuery('googleotp.deleteAllTrustedDevices', $args);
+		return $output->toBool();
+	}
+
+	/**
+	 * 만료된 신뢰할 수 있는 기기를 정리하는 함수.
+	 *
+	 * @return bool
+	 */
+	public function cleanupExpiredTrustedDevices()
+	{
+		$args = new stdClass();
+		$args->current_time = time();
+
+		$output = executeQuery('googleotp.deleteExpiredTrustedDevices', $args);
+		return $output->toBool();
+	}
+
+	/**
+	 * User-Agent를 기반으로 기기 이름을 생성하는 함수.
+	 *
+	 * @return string
+	 */
+	public function getDeviceName()
+	{
+		$ua = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+
+		// 브라우저 판별
+		$browser = 'Unknown Browser';
+		if(preg_match('/Edg\//i', $ua)) $browser = 'Edge';
+		elseif(preg_match('/OPR\//i', $ua)) $browser = 'Opera';
+		elseif(preg_match('/Chrome\//i', $ua)) $browser = 'Chrome';
+		elseif(preg_match('/Firefox\//i', $ua)) $browser = 'Firefox';
+		elseif(preg_match('/Safari\//i', $ua) && !preg_match('/Chrome/i', $ua)) $browser = 'Safari';
+		elseif(preg_match('/MSIE|Trident/i', $ua)) $browser = 'Internet Explorer';
+
+		// OS 판별
+		$os = 'Unknown OS';
+		if(preg_match('/Windows/i', $ua)) $os = 'Windows';
+		elseif(preg_match('/Macintosh|Mac OS/i', $ua)) $os = 'macOS';
+		elseif(preg_match('/Android/i', $ua)) $os = 'Android';
+		elseif(preg_match('/iPhone|iPad/i', $ua)) $os = 'iOS';
+		elseif(preg_match('/Linux/i', $ua)) $os = 'Linux';
+
+		return $browser . ' / ' . $os;
+	}
 }

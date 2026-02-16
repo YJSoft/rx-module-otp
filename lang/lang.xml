@@ -9,4 +9,7 @@
 	<item name="cmd_googleotp_example_config">
 		<value xml:lang="ko"><![CDATA[예제 설정]]></value>
 	</item>
+	<item name="cmd_googleotp_trusted_devices">
+		<value xml:lang="ko"><![CDATA[신뢰할 수 있는 기기]]></value>
+	</item>
 </lang>

@@ -135,4 +135,40 @@ class googleotpView extends googleotp
 		Context::set("user_config", $userconfig);
 		Context::set("googleotp_config", $config);
 	}
+
+	/**
+	 * 신뢰할 수 있는 기기 관리 화면을 출력하는 함수.
+	 *
+	 * @return BaseObject|void
+	 */
+	function dispGoogleotpTrustedDevices()
+	{
+		if (!Context::get("is_logged"))
+		{
+			return $this->createObject(-1, "로그인해주세요");
+		}
+
+		$logged_info = Context::get("logged_info");
+		$member_srl = $logged_info->member_srl;
+
+		$oGoogleOTPModel = googleotpModel::getInstance();
+		$config = $this->getConfig();
+
+		if($config->use_trusted_device !== 'Y')
+		{
+			return $this->createObject(-1, "신뢰할 수 있는 기기 기능이 비활성화되어 있습니다.");
+		}
+
+		$page = Context::get('page') ?: 1;
+		$output = $oGoogleOTPModel->getTrustedDeviceList($member_srl, $page);
+
+		Context::set('device_list', $output->data);
+		Context::set('total_count', $output->total_count);
+		Context::set('total_page', $output->total_page);
+		Context::set('page', $output->page);
+		Context::set('page_navigation', $output->page_navigation);
+		Context::set('googleotp_config', $config);
+
+		$this->setTemplateFile('trusteddevices');
+	}
 }

@@ -1,0 +1,13 @@
+<query id="insertTrustedDevice" action="insert">
+    <tables>
+        <table name="googleotp_trusted_devices" />
+    </tables>
+    <columns>
+        <column name="member_srl" var="member_srl" notnull="notnull" />
+        <column name="device_token" var="device_token" notnull="notnull" />
+        <column name="device_name" var="device_name" notnull="notnull" />
+        <column name="ipaddress" var="ipaddress" />
+        <column name="created_at" var="created_at" notnull="notnull" />
+        <column name="expires_at" var="expires_at" notnull="notnull" />
+    </columns>
+</query>
