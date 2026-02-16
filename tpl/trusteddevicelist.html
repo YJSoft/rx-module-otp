@@ -1,0 +1,82 @@
+<include target="header.html" />
+
+<section class="section">
+	<h1>신뢰할 수 있는 기기 목록</h1>
+
+	<p class="x_well x_well-small" cond="!$device_list">등록된 신뢰할 수 있는 기기가 없습니다.</p>
+
+	<table class="x_table x_table-striped x_table-hover" style="margin-top:20px;" cond="$device_list">
+		<thead>
+		<tr>
+			<th scope="col">번호</th>
+			<th scope="col">닉네임</th>
+			<th scope="col">기기 정보</th>
+			<th scope="col">IP 주소</th>
+			<th scope="col">등록일</th>
+			<th scope="col">만료일</th>
+			<th scope="col">상태</th>
+			<th scope="col">관리</th>
+		</tr>
+		</thead>
+		<tbody>
+			<!--@foreach($device_list as $no => $val)-->
+			<tr>
+				<td>{$val->idx}</td>
+				<td><a class="member_{$val->member_info->member_srl}" href="javascript:void(0);">{$val->member_info->nick_name}</a></td>
+				<td>{$val->device_name}</td>
+				<td>{$val->ipaddress}</td>
+				<td>{date('Y-m-d H:i:s', $val->created_at)}</td>
+				<td>{date('Y-m-d H:i:s', $val->expires_at)}</td>
+				<td><!--@if($val->expires_at > time())--><span style="color:green">유효</span><!--@else--><span style="color:red">만료</span><!--@endif--></td>
+				<td>
+					<form action="./" method="post" style="display:inline;">
+						<input type="hidden" name="module" value="googleotp" />
+						<input type="hidden" name="act" value="procGoogleotpAdminDeleteTrustedDevice" />
+						<input type="hidden" name="device_idx" value="{$val->idx}" />
+						<input type="hidden" name="target_member_srl" value="{$val->member_srl}" />
+						<input type="hidden" name="success_return_url" value="{getRequestUriByServerEnviroment()}" />
+						<button type="submit" class="x_btn x_btn-danger x_btn-small" onclick="return confirm('이 기기를 삭제하시겠습니까?')">삭제</button>
+					</form>
+				</td>
+			</tr>
+			<!--@end-->
+		</tbody>
+	</table>
+
+	<form action="" class="x_pagination" cond="$device_list">
+		<input type="hidden" name="error_return_url" value="" />
+		<input type="hidden" name="module" value="{$module}" />
+		<input type="hidden" name="act" value="{$act}" />
+
+		<ul>
+			<li class="x_disabled"|cond="!$page || $page == 1"><a href="{getUrl('page', '')}">&laquo; {$lang->first_page}</a></li>
+			<block cond="$page_navigation->first_page != 1 && $page_navigation->first_page + $page_navigation->page_count > $page_navigation->last_page - 1 && $page_navigation->page_count != $page_navigation->total_page">
+				{@$isGoTo = true}
+				<li>
+					<a href="#goTo" data-toggle title="{$lang->cmd_go_to_page}">&hellip;</a>
+					<span cond="$isGoTo" id="goTo" class="x_input-append">
+				<input type="number" min="1" max="{$page_navigation->last_page}" required name="page" title="{$lang->cmd_go_to_page}" />
+				<button type="submit" class="x_add-on">Go</button>
+			</span>
+				</li>
+			</block>
+
+			<!--@while($page_no = $page_navigation->getNextPage())-->
+			{@$last_page = $page_no}
+			<li class="x_active"|cond="$page_no == $page"><a  href="{getUrl('page', $page_no)}">{$page_no}</a></li>
+			<!--@end-->
+
+			<block cond="$last_page != $page_navigation->last_page && $last_page + 1 != $page_navigation->last_page">
+				{@$isGoTo = true}
+				<li>
+					<a href="#goTo" data-toggle title="{$lang->cmd_go_to_page}">&hellip;</a>
+					<span cond="$isGoTo" id="goTo" class="x_input-append">
+				<input type="number" min="1" max="{$page_navigation->last_page}" required name="page" title="{$lang->cmd_go_to_page}" />
+				<button type="submit" class="x_add-on">Go</button>
+			</span>
+				</li>
+			</block>
+			<li class="x_disabled"|cond="$page == $page_navigation->last_page"><a href="{getUrl('page', $page_navigation->last_page)}" title="{$page_navigation->last_page}">{$lang->last_page} &raquo;</a></li>
+		</ul>
+	</form>
+</section>

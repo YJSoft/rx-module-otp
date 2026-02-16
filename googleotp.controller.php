@@ -114,8 +114,8 @@ class googleotpController extends googleotp
 		$member_srl = Context::get('logged_info')->member_srl;
 
 		$oGoogleOTPModel = googleotpModel::getInstance();
-		$config = $oGoogleOTPModel->getUserConfig($member_srl);
-		$issue_type = $config->issue_type;
+		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
+		$issue_type = $userconfig->issue_type;
 		
 		if($oGoogleOTPModel->checkOTPNumber($member_srl,$otpnumber))
 		{
@@ -125,14 +125,35 @@ class googleotpController extends googleotp
 		    }
 		    else
 		    {
-		        $oGoogleOTPModel->insertAuthlog($member_srl, $otpnumber, "Y", $issue_type);
+		      $oGoogleOTPModel->insertAuthlog($member_srl, $otpnumber, "Y", $issue_type);
 			    $_SESSION['googleotp_passed'] = TRUE;
+
+			    // 신뢰할 수 있는 기기 등록 처리
+			    $trust_device = Context::get("trust_device");
+			    if($trust_device === 'Y' && $config->use_trusted_device === 'Y')
+			    {
+			        $trust_days = intval($config->trusted_device_duration) ?: 30;
+			        $device_token = $oGoogleOTPModel->registerTrustedDevice($member_srl, $trust_days);
+			        if($device_token)
+			        {
+			            $cookie_expire = time() + ($trust_days * 86400);
+			            $is_https = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+			            setcookie('googleotp_trusted_device', $device_token, [
+			                'expires' => $cookie_expire,
+			                'path' => '/',
+			                'secure' => $is_https,
+			                'httponly' => true,
+			                'samesite' => 'Lax',
+			            ]);
+			        }
+			    }
+
 			    $this->setRedirectUrl($_SESSION['beforeaddress']);
 		    }
 		}
 		else
 		{
-		    $oGoogleOTPModel->insertAuthlog($member_srl, $otpnumber, "N", $issue_type);
+		  $oGoogleOTPModel->insertAuthlog($member_srl, $otpnumber, "N", $issue_type);
 			$this->setError(-1);
 			$this->setMessage("잘못된 인증 번호입니다");
 			$this->setRedirectUrl(Context::get('error_return_url') ?: getNotEncodedUrl('', 'act', 'dispGoogleotpInputotp'));
@@ -220,7 +241,19 @@ class googleotpController extends googleotp
 
 		$config = $this->getConfig();
 		$oGoogleOTPModel = googleotpModel::getInstance();
-		$userconfig = $oGoogleOTPModel->getUserConfig(Context::get('logged_info')->member_srl);
+		$member_srl = Context::get('logged_info')->member_srl;
+		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
+
+		// 신뢰할 수 있는 기기 확인
+		if($config->use_trusted_device === 'Y' && !$_SESSION['googleotp_passed'])
+		{
+			$device_token = $_COOKIE['googleotp_trusted_device'] ?? '';
+			if($device_token && $oGoogleOTPModel->checkTrustedDevice($member_srl, $device_token))
+			{
+				$_SESSION['googleotp_passed'] = TRUE;
+			}
+		}
+
 		if($userconfig->use === "Y") {
 			$allowedact = array("dispGoogleotpInputotp","procGoogleotpInputotp","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage","getMember_divideList");
 			if(!in_array($obj->act, $allowedact) && !$_SESSION['googleotp_passed'])
@@ -232,7 +265,7 @@ class googleotpController extends googleotp
 			}
 		} elseif($config->force_use_otp === "Y") {
 			$allowedact = array("dispGoogleotpUserConfig","procGoogleotpUserConfig","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage","getMember_divideList");
-			if(!in_array($obj->act, $allowedact) && (!$oGoogleOTPModel->checkUserConfig(Context::get('logged_info')->member_srl) || $userconfig->use !== "Y"))
+			if(!in_array($obj->act, $allowedact) && (!$oGoogleOTPModel->checkUserConfig($member_srl) || $userconfig->use !== "Y"))
 			{
 				$_SESSION['beforeaddress'] = getNotEncodedUrl();
 				header("Location: " . getNotEncodedUrl('act','dispGoogleotpUserConfig'));
@@ -254,6 +287,91 @@ class googleotpController extends googleotp
 		$config = $this->getConfig();
 		if($config->bypass_auto_login === "Y") {
 			$_SESSION['googleotp_passed'] = TRUE;
+		}
+	}
+
+	/**
+	 * 신뢰할 수 있는 기기를 삭제하는 함수.
+	 *
+	 * @return BaseObject|void
+	 */
+	function procGoogleotpDeleteTrustedDevice()
+	{
+		if(!Context::get("is_logged")) return $this->createObject(-1, "로그인해주세요");
+
+		$logged_info = Context::get('logged_info');
+		$member_srl = $logged_info->member_srl;
+		$idx = intval(Context::get('device_idx'));
+
+		if(!$idx) return $this->createObject(-1, "잘못된 요청입니다.");
+
+		$oGoogleOTPModel = googleotpModel::getInstance();
+
+		// 관리자는 다른 회원의 기기도 삭제 가능
+		if($logged_info->is_admin === 'Y' && Context::get('target_member_srl'))
+		{
+			$member_srl = intval(Context::get('target_member_srl'));
+		}
+
+		if(!$oGoogleOTPModel->deleteTrustedDevice($idx, $member_srl))
+		{
+			return $this->createObject(-1, "기기 삭제에 실패했습니다.");
+		}
+
+		$this->setMessage('success_deleted');
+		if(Context::get('success_return_url'))
+		{
+			$this->setRedirectUrl(Context::get('success_return_url'));
+		}
+		else
+		{
+			$this->setRedirectUrl(getNotEncodedUrl('', 'act', 'dispGoogleotpTrustedDevices'));
+		}
+	}
+
+	/**
+	 * 모든 신뢰할 수 있는 기기를 삭제하는 함수.
+	 *
+	 * @return BaseObject|void
+	 */
+	function procGoogleotpDeleteAllTrustedDevices()
+	{
+		if(!Context::get("is_logged")) return $this->createObject(-1, "로그인해주세요");
+
+		$logged_info = Context::get('logged_info');
+		$member_srl = $logged_info->member_srl;
+
+		$oGoogleOTPModel = googleotpModel::getInstance();
+
+		// 관리자는 다른 회원의 기기도 삭제 가능
+		if($logged_info->is_admin === 'Y' && Context::get('target_member_srl'))
+		{
+			$member_srl = intval(Context::get('target_member_srl'));
+		}
+
+		if(!$oGoogleOTPModel->deleteAllTrustedDevices($member_srl))
+		{
+			return $this->createObject(-1, "기기 삭제에 실패했습니다.");
+		}
+
+		// 쿠키 삭제
+		$is_https = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+		setcookie('googleotp_trusted_device', '', [
+			'expires' => time() - 3600,
+			'path' => '/',
+			'secure' => $is_https,
+			'httponly' => true,
+			'samesite' => 'Lax',
+		]);
+
+		$this->setMessage('success_deleted');
+		if(Context::get('success_return_url'))
+		{
+			$this->setRedirectUrl(Context::get('success_return_url'));
+		}
+		else
+		{
+			$this->setRedirectUrl(getNotEncodedUrl('', 'act', 'dispGoogleotpTrustedDevices'));
 		}
 	}
 }

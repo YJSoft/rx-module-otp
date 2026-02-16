@@ -82,6 +82,19 @@
 				<p class="x_help-block">체크하면 자동 로그인으로 로그인하면 2차 인증을 건너뜁니다. <span style="color:red">주의: 신뢰되지 않은 기기가 등록되면 위험할 수 있습니다.</span></p>
 			</div>
 		</div>
+
+		<div class="x_control-group">
+			<label class="x_control-label">신뢰할 수 있는 기기</label>
+			<div class="x_controls">
+				<label class="x_inline" for="use_trusted_device"><input type="checkbox" name="use_trusted_device" id="use_trusted_device" value="Y" checked="checked"|cond="$googleotp_config->use_trusted_device == 'Y'" /> 신뢰할 수 있는 기기 등록 허용</label>
+				<p class="x_help-block">체크하면 OTP 인증 성공 시 해당 기기를 신뢰할 수 있는 기기로 등록하여, 일정 기간 동안 2차 인증을 생략할 수 있습니다.</p>
+			</div>
+			<div class="x_controls">
+				<label class="x_control-label" for="trusted_device_duration">신뢰 기간 (일)</label>
+				<input type="number" name="trusted_device_duration" id="trusted_device_duration" value="{$googleotp_config->trusted_device_duration}" min="1" max="365" /> 일
+				<p class="x_help-block">신뢰할 수 있는 기기로 등록된 기기의 유효 기간을 설정합니다. (기본값: 30일)</p>
+			</div>
+		</div>
 	</section>
 
 	<section class="section">

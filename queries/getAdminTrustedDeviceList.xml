@@ -1,0 +1,14 @@
+<query id="getAdminTrustedDeviceList" action="select">
+    <tables>
+        <table name="googleotp_trusted_devices" />
+    </tables>
+    <columns>
+        <column name="*" />
+    </columns>
+    <navigation>
+        <index var="sort_index" default="created_at" order="desc" />
+        <list_count var="list_count" default="20" />
+        <page_count var="page_count" default="10" />
+        <page var="page" default="1" />
+    </navigation>
+</query>

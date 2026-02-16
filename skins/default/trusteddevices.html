@@ -1,0 +1,78 @@
+<load target="../../../member/skins/default/css/member.css" />
+<load target="css/default.css" />
+<include target="../../../member/skins/default/common_header.html" />
+<div class="xm">
+    <div cond="$XE_VALIDATOR_MESSAGE" class="message {$XE_VALIDATOR_MESSAGE_TYPE}">
+        <p>{$XE_VALIDATOR_MESSAGE}</p>
+    </div>
+
+    <section class="section">
+        <h1>신뢰할 수 있는 기기 관리</h1>
+        <p class="help-block">OTP 인증 시 등록한 신뢰할 수 있는 기기 목록입니다. 신뢰할 수 있는 기기로 등록된 기기에서는 2차 인증을 생략합니다.</p>
+
+        <!--@if(!$device_list)-->
+        <div class="message info">
+            <p>등록된 신뢰할 수 있는 기기가 없습니다.</p>
+        </div>
+        <!--@endif-->
+
+        <!--@if($device_list)-->
+        <table style="width:100%; border-collapse:collapse; margin-top:15px;">
+            <thead>
+            <tr style="border-bottom:2px solid #ddd;">
+                <th style="padding:8px; text-align:left;">기기 정보</th>
+                <th style="padding:8px; text-align:left;">IP 주소</th>
+                <th style="padding:8px; text-align:left;">등록일</th>
+                <th style="padding:8px; text-align:left;">만료일</th>
+                <th style="padding:8px; text-align:left;">상태</th>
+                <th style="padding:8px; text-align:center;">관리</th>
+            </tr>
+            </thead>
+            <tbody>
+                <!--@foreach($device_list as $no => $val)-->
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:8px;">{$val->device_name}</td>
+                    <td style="padding:8px;">{$val->ipaddress}</td>
+                    <td style="padding:8px;">{date('Y-m-d H:i', $val->created_at)}</td>
+                    <td style="padding:8px;">{date('Y-m-d H:i', $val->expires_at)}</td>
+                    <td style="padding:8px;">
+                        <!--@if($val->expires_at > time())-->
+                        <span style="color:green;">유효</span>
+                        <!--@else-->
+                        <span style="color:red;">만료</span>
+                        <!--@endif-->
+                    </td>
+                    <td style="padding:8px; text-align:center;">
+                        <form action="./" method="post" style="display:inline;">
+                            <input type="hidden" name="module" value="googleotp" />
+                            <input type="hidden" name="act" value="procGoogleotpDeleteTrustedDevice" />
+                            <input type="hidden" name="device_idx" value="{$val->idx}" />
+                            <input type="hidden" name="error_return_url" value="{getRequestUriByServerEnviroment()}" />
+                            <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('이 기기를 삭제하시겠습니까?\n삭제 후 해당 기기에서 다시 OTP 인증이 필요합니다.')">삭제</button>
+                        </form>
+                    </td>
+                </tr>
+                <!--@end-->
+            </tbody>
+        </table>
+
+        <div class="clearfix btnArea" style="margin-top:15px;">
+            <div class="pull-right">
+                <form action="./" method="post" style="display:inline;">
+                    <input type="hidden" name="module" value="googleotp" />
+                    <input type="hidden" name="act" value="procGoogleotpDeleteAllTrustedDevices" />
+                    <input type="hidden" name="error_return_url" value="{getRequestUriByServerEnviroment()}" />
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('모든 신뢰할 수 있는 기기를 삭제하시겠습니까?\n모든 기기에서 다시 OTP 인증이 필요합니다.')">모든 기기 삭제</button>
+                </form>
+            </div>
+        </div>
+        <!--@endif-->
+    </section>
+
+    <div class="clearfix btnArea">
+        <div class="pull-left">
+            <a class="btn" href="{getUrl('', 'act', 'dispGoogleotpUserConfig')}">2차 인증 설정으로 돌아가기</a>
+        </div>
+    </div>
+</div>
+<include target="../../../member/skins/default/common_footer.html" />

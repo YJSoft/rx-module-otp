@@ -62,6 +62,8 @@ class googleotp extends ModuleObject
 			if(!isset(self::$_config_cache->multiple_auth_key_process)) self::$_config_cache->multiple_auth_key_process = 0;
 			if(!isset(self::$_config_cache->force_use_otp)) self::$_config_cache->force_use_otp = 'N';
 			if(!isset(self::$_config_cache->bypass_auto_login)) self::$_config_cache->bypass_auto_login = 'N';
+			if(!isset(self::$_config_cache->use_trusted_device)) self::$_config_cache->use_trusted_device = 'N';
+			if(!isset(self::$_config_cache->trusted_device_duration)) self::$_config_cache->trusted_device_duration = 30;
 		}
 		return self::$_config_cache;
 	}

@@ -38,6 +38,8 @@ class googleotpAdminController extends googleotp
 		$config->multiple_auth_key_process = $vars->multiple_auth_key_process;
 		$config->force_use_otp = $vars->force_use_otp ? 'Y' : 'N';
 		$config->bypass_auto_login = $vars->bypass_auto_login ? 'Y' : 'N';
+		$config->use_trusted_device = $vars->use_trusted_device ? 'Y' : 'N';
+		$config->trusted_device_duration = intval($vars->trusted_device_duration) ?: 30;
 		
 		$output = $this->setConfig($config);
 		if (!$output->toBool())
@@ -69,5 +71,27 @@ class googleotpAdminController extends googleotp
 		}
 		$this->setMessage('success_registed');
 		$this->setRedirectUrl(Context::get('success_return_url'));
+	}
+
+	/**
+	 * 관리자가 신뢰할 수 있는 기기를 삭제하는 함수.
+	 *
+	 * @return BaseObject|void
+	 */
+	public function procGoogleotpAdminDeleteTrustedDevice()
+	{
+		$idx = intval(Context::get('device_idx'));
+		$member_srl = intval(Context::get('target_member_srl'));
+
+		if(!$idx || !$member_srl) return $this->createObject(-1, "잘못된 요청입니다.");
+
+		$oGoogleOTPModel = googleotpModel::getInstance();
+		if(!$oGoogleOTPModel->deleteTrustedDevice($idx, $member_srl))
+		{
+			return $this->createObject(-1, "기기 삭제에 실패했습니다.");
+		}
+
+		$this->setMessage('success_deleted');
+		$this->setRedirectUrl(Context::get('success_return_url') ?: getNotEncodedUrl('', 'module', 'admin', 'act', 'dispGoogleotpAdminTrustedDeviceList'));
 	}
 }

@@ -8,16 +8,21 @@
 		<action name="dispGoogleotpAdminMemberSetup" type="view" />
 		<action name="dispGoogleotpAdminAuthList" type="view" />
 		<action name="dispGoogleotpAdminAuthSendList" type="view" />
+		<action name="dispGoogleotpAdminTrustedDeviceList" type="view" />
 		
 		<action name="procGoogleotpAdminInsertConfig" type="controller"/>
 		<action name="procGoogleotpAdminUpdateConfig" type="controller" />
+		<action name="procGoogleotpAdminDeleteTrustedDevice" type="controller" />
 
 		<action name="dispGoogleotpUserConfig" route="TWAConfig" type="view"/>
 		<action name="dispGoogleotpInputotp" route="TWACheck" type="view"/>
+		<action name="dispGoogleotpTrustedDevices" route="TWATrustedDevices" type="view"/>
 	
 		<action name="procGoogleotpUserConfig" type="controller"/>
 		<action name="procGoogleotpInputotp" type="controller"/>
 		<action name="procGoogleotpResendauthmessage" type="controller" />
+		<action name="procGoogleotpDeleteTrustedDevice" type="controller" />
+		<action name="procGoogleotpDeleteAllTrustedDevices" type="controller" />
 	</actions>
 	<menus>
 		<menu name="googleotp" type="all">

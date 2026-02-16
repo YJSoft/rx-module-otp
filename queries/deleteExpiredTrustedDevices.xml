@@ -1,0 +1,8 @@
+<query id="deleteExpiredTrustedDevices" action="delete">
+    <tables>
+        <table name="googleotp_trusted_devices" />
+    </tables>
+    <conditions>
+        <condition operation="less" column="expires_at" var="current_time" notnull="notnull" />
+    </conditions>
+</query>

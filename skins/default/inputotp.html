@@ -52,6 +52,17 @@
                 </div>
             </div>
             <!--@endif-->
+            <!--@if($googleotp_config->use_trusted_device == 'Y')-->
+            <div class="control-group">
+                <label class="control-label">이 기기 신뢰하기</label>
+                <div class="controls">
+                    <label class="inline">
+                        <input type="checkbox" name="trust_device" value="Y" /> {$googleotp_config->trusted_device_duration}일 동안 이 기기에서 2차 인증 생략
+                    </label>
+                    <p class="help-block">공용 PC에서는 체크하지 마세요.</p>
+                </div>
+            </div>
+            <!--@endif-->
         </section>
         <div class="clearfix btnArea">
             <div class="pull-right">

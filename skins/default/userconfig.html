@@ -77,6 +77,9 @@
             <div class="pull-right">
                 <button class="btn btn-primary" type="submit">설정 저장</button>
             </div>
+            <div class="pull-left" cond="$googleotp_config->use_trusted_device == 'Y'">
+                <a class="btn" href="{getUrl('', 'act', 'dispGoogleotpTrustedDevices')}">신뢰할 수 있는 기기 관리</a>
+            </div>
         </div>
     </form>
 </div>
