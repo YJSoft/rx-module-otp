@@ -1,4 +1,10 @@
 <?php
+
+/**
+ * @class googleotp
+ * @author Lastorder-DC
+ * @brief Google OTP 2차 인증 모듈의 기본 클래스
+ */
 class googleotp extends ModuleObject
 {
 	/**
@@ -45,7 +51,7 @@ class googleotp extends ModuleObject
 	{
 		if (self::$_config_cache === null)
 		{
-			$oModuleModel = getModel('module');
+			$oModuleModel = moduleModel::getInstance();
 			self::$_config_cache = $oModuleModel->getModuleConfig($this->module) ?: new stdClass;
 
 			if(!isset(self::$_config_cache->allow_issue_type)) self::$_config_cache->allow_issue_type = ['otp','email'];
@@ -71,7 +77,7 @@ class googleotp extends ModuleObject
 	 */
 	public function setConfig($config)
 	{
-		$oModuleController = getController('module');
+		$oModuleController = moduleController::getInstance();
 		$result = $oModuleController->insertModuleConfig($this->module, $config);
 		if ($result->toBool())
 		{
@@ -225,7 +231,7 @@ class googleotp extends ModuleObject
 	 */
 	public function checkTriggers()
 	{
-		$oModuleModel = getModel('module');
+		$oModuleModel = moduleModel::getInstance();
 		foreach (self::$_insert_triggers as $trigger)
 		{
 			if (!$oModuleModel->getTrigger($trigger[0], $this->module, $trigger[2], $trigger[3], $trigger[1]))
@@ -252,8 +258,8 @@ class googleotp extends ModuleObject
 	 */
 	public function registerTriggers()
 	{
-		$oModuleModel = getModel('module');
-		$oModuleController = getController('module');
+		$oModuleModel = moduleModel::getInstance();
+		$oModuleController = moduleController::getInstance();
 		foreach (self::$_insert_triggers as $trigger)
 		{
 			if (!$oModuleModel->getTrigger($trigger[0], $this->module, $trigger[2], $trigger[3], $trigger[1]))

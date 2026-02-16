@@ -1,7 +1,19 @@
 <?php
 
+/**
+ * @class googleotpView
+ * @author Lastorder-DC
+ * @brief Google OTP 2차 인증 모듈의 뷰 클래스
+ */
 class googleotpView extends googleotp
 {
+	/**
+	 * 뷰 초기화 함수.
+	 *
+	 * 스킨 경로를 설정하고 템플릿 파일을 지정한다.
+	 *
+	 * @return void
+	 */
 	function init()
 	{
 		$config = $this->getConfig();
@@ -17,6 +29,13 @@ class googleotpView extends googleotp
 		$this->setTemplateFile(strtolower(str_replace('dispGoogleotp', '', $this->act)));
 	}
 
+	/**
+	 * 사용자 OTP 설정 화면을 출력하는 함수.
+	 *
+	 * QR 코드 및 설정 상태를 표시한다.
+	 *
+	 * @return BaseObject|void
+	 */
 	function dispGoogleotpUserConfig()
 	{
 		if (!Context::get("is_logged"))
@@ -34,7 +53,7 @@ class googleotpView extends googleotp
 			$member_srl = $logged_info->member_srl;
 		}
 
-		$oGoogleOTPModel = getModel('googleotp');
+		$oGoogleOTPModel = googleotpModel::getInstance();
 		$domain = parse_url(getFullUrl());
 
 		if(!$oGoogleOTPModel->checkUserConfig($member_srl)) {
@@ -52,6 +71,14 @@ class googleotpView extends googleotp
 		Context::set("googleotp_config", $this->getConfig());
 	}
 
+	/**
+	 * OTP 인증번호 입력 화면을 출력하는 함수.
+	 *
+	 * 이메일 또는 SMS 인증 방식인 경우 인증번호를 발송하고,
+	 * 캡챠 설정이 활성화된 경우 캡챠를 초기화한다.
+	 *
+	 * @return BaseObject|void
+	 */
 	function dispGoogleotpInputotp()
 	{
 		if (!Context::get("is_logged"))
@@ -70,7 +97,7 @@ class googleotpView extends googleotp
 		$config = $this->getConfig();
 		$logged_info = Context::get("logged_info");
 		$member_srl = $logged_info->member_srl;
-		$oGoogleOTPModel = getModel('googleotp');
+		$oGoogleOTPModel = googleotpModel::getInstance();
 		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
 
 		if($userconfig->issue_type == 'email')

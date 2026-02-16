@@ -1,13 +1,31 @@
 <?php
+
+/**
+ * @class googleotpController
+ * @author Lastorder-DC
+ * @brief Google OTP 2차 인증 모듈의 컨트롤러 클래스
+ */
 class googleotpController extends googleotp
 {
+	/**
+	 * 컨트롤러 초기화 함수.
+	 *
+	 * @return void
+	 */
 	function init()
 	{
 	}
 
+	/**
+	 * 사용자 OTP 설정을 처리하는 함수.
+	 *
+	 * 2차 인증 사용 여부 및 인증 방식을 설정한다.
+	 *
+	 * @return BaseObject|void
+	 */
 	function procGoogleotpUserConfig()
 	{
-		$oGoogleOTPModel = getModel('googleotp');
+		$oGoogleOTPModel = googleotpModel::getInstance();
 		if(!Context::get("is_logged")) return $this->createObject(-1, "로그인해주세요");
 		$member_srl = Context::get('logged_info')->member_srl;
 
@@ -57,6 +75,11 @@ class googleotpController extends googleotp
 		}
 	}
 
+	/**
+	 * OTP 인증번호를 입력받아 검증하는 함수.
+	 *
+	 * @return BaseObject|void
+	 */
 	function procGoogleotpInputotp()
 	{
 		if(!Context::get("is_logged")) return $this->createObject(-1,"로그인하지 않았습니다.");
@@ -90,7 +113,7 @@ class googleotpController extends googleotp
 	    
 		$member_srl = Context::get('logged_info')->member_srl;
 
-		$oGoogleOTPModel = getModel('googleotp');
+		$oGoogleOTPModel = googleotpModel::getInstance();
 		$config = $oGoogleOTPModel->getUserConfig($member_srl);
 		$issue_type = $config->issue_type;
 		
@@ -116,13 +139,20 @@ class googleotpController extends googleotp
 		}
 	}
 
+	/**
+	 * 인증 메시지를 재발송하는 함수.
+	 *
+	 * 이메일 또는 SMS로 인증번호를 재발송한다.
+	 *
+	 * @return BaseObject
+	 */
 	function procGoogleotpResendauthmessage()
 	{
 		Context::setResponseMethod('JSON');
 		if($_SESSION['googleotp_passed']) return $this->createObject(-1,"이미 인증했습니다.");
 
 		$member_srl = Context::get('member_srl');
-		$oGoogleOTPModel = getModel('googleotp');
+		$oGoogleOTPModel = googleotpModel::getInstance();
 		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
 
 		if($userconfig->issue_type == 'email')
@@ -151,12 +181,17 @@ class googleotpController extends googleotp
 		}
 	}
 
+	/**
+	 * 회원 메뉴에 2차 인증 설정 메뉴를 추가하는 트리거 함수.
+	 *
+	 * @return BaseObject
+	 */
 	function triggerAddMemberMenu()
 	{
 		$logged_info = Context::get('logged_info');
 		if(!Context::get('is_logged')) return $this->createObject();
 
-		$oMemberController = getController('member');
+		$oMemberController = memberController::getInstance();
 		$oMemberController->addMemberMenu('dispGoogleotpUserConfig', "로그인 2차 인증 설정");
 		if($logged_info->is_admin== 'Y')
 		{
@@ -168,6 +203,15 @@ class googleotpController extends googleotp
 		return $this->createObject();
 	}
 
+	/**
+	 * 로그인 시 2차 인증 화면으로 리다이렉트하는 트리거 함수.
+	 *
+	 * OTP 인증이 필요한 사용자가 인증을 완료하지 않은 경우
+	 * 허용된 액션 외의 접근을 차단하고 인증 화면으로 이동시킨다.
+	 *
+	 * @param object $obj 모듈 핸들러 객체
+	 * @return void
+	 */
 	function triggerHijackLogin($obj) {
 		if(!Context::get("is_logged") || $obj->act === "dispMemberLogout") {
 			unset($_SESSION['googleotp_passed']);
@@ -175,7 +219,7 @@ class googleotpController extends googleotp
 		}
 
 		$config = $this->getConfig();
-		$oGoogleOTPModel = getModel('googleotp');
+		$oGoogleOTPModel = googleotpModel::getInstance();
 		$userconfig = $oGoogleOTPModel->getUserConfig(Context::get('logged_info')->member_srl);
 		if($userconfig->use === "Y") {
 			$allowedact = array("dispGoogleotpInputotp","procGoogleotpInputotp","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage","getMember_divideList");
@@ -198,6 +242,14 @@ class googleotpController extends googleotp
 		}
 	}
 
+	/**
+	 * 자동 로그인 시 2차 인증을 우회하는 트리거 함수.
+	 *
+	 * 설정에서 자동 로그인 시 우회가 활성화된 경우 OTP 인증을 건너뛴다.
+	 *
+	 * @param object $obj 자동 로그인 객체
+	 * @return void
+	 */
 	function triggerAutoLoginBypass($obj) {
 		$config = $this->getConfig();
 		if($config->bypass_auto_login === "Y") {
