@@ -1,18 +1,36 @@
 <?php
+
+/**
+ * @class googleotpAdminView
+ * @author YJSoft
+ * @brief Google OTP 2차 인증 모듈의 관리자 뷰 클래스
+ */
 class googleotpAdminView extends googleotp
 {
+	/**
+	 * 관리자 뷰 초기화 함수.
+	 *
+	 * 관리자 템플릿 경로를 설정한다.
+	 *
+	 * @return void
+	 */
 	function init()
 	{
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile(strtolower(str_replace('dispGoogleotpAdmin', '', $this->act)));
 	}
 
+	/**
+	 * 관리자 설정 화면을 출력하는 함수.
+	 *
+	 * @return void
+	 */
 	public function dispGoogleotpAdminConfig()
 	{
 		// 현재 설정 상태 불러오기
 		$config = $this->getConfig();
 
-		$oModuleModel = getModel('module');
+		$oModuleModel = moduleModel::getInstance();
 		$skin_list = $oModuleModel->getSkins($this->module_path);
 
 		// Context에 세팅
@@ -23,9 +41,14 @@ class googleotpAdminView extends googleotp
 		$this->setTemplateFile('config');
 	}
 	
+	/**
+	 * OTP 사용 회원 목록을 출력하는 함수.
+	 *
+	 * @return void
+	 */
 	public function dispGoogleotpAdminMemberList()
 	{
-		$oMemberModel = getModel('member');
+		$oMemberModel = memberModel::getInstance();
 		
 		$args = new stdClass;
 		$args->page = Context::get('page'); ///< 페이지
@@ -46,9 +69,14 @@ class googleotpAdminView extends googleotp
 		Context::set('otp_list', $output->data);
 	}
 	
+	/**
+	 * 개별 회원의 OTP 설정을 관리하는 화면을 출력하는 함수.
+	 *
+	 * @return void
+	 */
 	public function dispGoogleotpAdminMemberSetup()
 	{
-		$userOtpConfig = getModel('googleotp')->getUserConfig(Context::get('srl'));
+		$userOtpConfig = googleotpModel::getInstance()->getUserConfig(Context::get('srl'));
 		
 		Context::set('user_config', $userOtpConfig);
 
@@ -56,9 +84,14 @@ class googleotpAdminView extends googleotp
 		Context::set('googleotp_config', $config);
 	}
 
+	/**
+	 * OTP 인증 시도 로그 목록을 출력하는 함수.
+	 *
+	 * @return void
+	 */
 	public function dispGoogleotpAdminAuthList()
 	{
-		$oMemberModel = getModel('member');
+		$oMemberModel = memberModel::getInstance();
 		
 		$args = new stdClass;
 		$args->page = Context::get('page'); ///< 페이지
@@ -79,9 +112,14 @@ class googleotpAdminView extends googleotp
 		Context::set('auth_list', $output->data);
 	}
 
+	/**
+	 * 인증 발송(이메일/SMS) 로그 목록을 출력하는 함수.
+	 *
+	 * @return void
+	 */
 	public function dispGoogleotpAdminAuthSendList()
 	{
-		$oMemberModel = getModel('member');
+		$oMemberModel = memberModel::getInstance();
 		
 		$args = new stdClass;
 		$args->page = Context::get('page'); ///< 페이지

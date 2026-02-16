@@ -1,10 +1,26 @@
 <?php
+
+/**
+ * @class googleotpAdminController
+ * @author YJSoft
+ * @brief Google OTP 2차 인증 모듈의 관리자 컨트롤러 클래스
+ */
 class googleotpAdminController extends googleotp
 {
+	/**
+	 * 관리자 컨트롤러 초기화 함수.
+	 *
+	 * @return void
+	 */
 	function init()
 	{
 	}
 
+	/**
+	 * 관리자 모듈 설정을 저장하는 함수.
+	 *
+	 * @return BaseObject|void
+	 */
 	public function procGoogleotpAdminInsertConfig()
 	{
 		// 현재 설정 상태 불러오기
@@ -34,6 +50,11 @@ class googleotpAdminController extends googleotp
 		$this->setRedirectUrl(Context::get('success_return_url'));
 	}
 	
+	/**
+	 * 관리자가 개별 사용자의 OTP 설정을 변경하는 함수.
+	 *
+	 * @return BaseObject|void
+	 */
 	public function procGoogleotpAdminUpdateConfig()
 	{
 		$obj = Context::getRequestVars();
