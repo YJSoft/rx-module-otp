@@ -330,7 +330,7 @@ class googleotpController extends googleotp
 			}
 		}
 
-		if($userconfig->use === "Y") {
+		if($userconfig && $userconfig->use === "Y") {
 			$allowedact = array("dispGoogleotpInputotp","procGoogleotpInputotp","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage","procGoogleotpSwitchAuthMethod","getMember_divideList","procGoogleotpPasskeyLoginChallenge","procGoogleotpPasskeyAuthenticate");
 			if(!in_array($obj->act, $allowedact) && !$_SESSION['googleotp_passed'])
 			{
@@ -341,7 +341,7 @@ class googleotpController extends googleotp
 			}
 		} elseif($config->force_use_otp === "Y") {
 			$allowedact = array("dispGoogleotpUserConfig","procGoogleotpUserConfig","procMemberLogin","dispMemberLogout","procGoogleotpResendauthmessage","getMember_divideList");
-			if(!in_array($obj->act, $allowedact) && (!$oGoogleOTPModel->checkUserConfig($member_srl) || $userconfig->use !== "Y"))
+			if(!in_array($obj->act, $allowedact) && (!$oGoogleOTPModel->checkUserConfig($member_srl) || !$userconfig || $userconfig->use !== "Y"))
 			{
 				$_SESSION['beforeaddress'] = getNotEncodedUrl();
 				header("Location: " . getNotEncodedUrl('act','dispGoogleotpUserConfig'));
