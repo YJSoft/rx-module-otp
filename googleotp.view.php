@@ -62,6 +62,18 @@ class googleotpView extends googleotp
 
 		$config = $this->getConfig();
 		$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
+
+		if(!$userconfig || empty($userconfig->otp_id))
+		{
+			$oGoogleOTPModel->generateNewOTP($member_srl);
+			$userconfig = $oGoogleOTPModel->getUserConfig($member_srl);
+		}
+
+		if(!$userconfig || empty($userconfig->otp_id))
+		{
+			return $this->createObject(-1, "OTP 설정을 불러올 수 없습니다.");
+		}
+
 		$userconfig->qrcode = $oGoogleOTPModel->generateQRCode($domain['host'], $logged_info->user_id, $userconfig->otp_id);
 
 		Context::set("member_srl", $member_srl);

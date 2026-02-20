@@ -120,6 +120,7 @@ class googleotpModel extends googleotp
 	 */
 	function generateQRCode($domain, $user_id, $key)
 	{
+		if(empty($key)) return '';
 		$ga = new SimpleAuthenticator();
 		return $ga->getQRCodeGoogleUrl($key, $user_id, $domain);
 	}
